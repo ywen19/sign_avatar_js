@@ -178,7 +178,6 @@
       <div class="main">
         <div class="panel stage">
           <div id="avatar-stage"></div>
-          <div class="stage-hint">3D Avatar Render Area</div>
         </div>
 
         <div class="panel subtitle">
@@ -247,7 +246,7 @@
     });
   </script>
 
-  <script src="./three.min.js"></script>
+  <script src="/js/three.min.js"></script>
   <script>
     logDebug("three.min.js tag executed");
     logDebug("window.THREE exists =", !!window.THREE);
@@ -256,27 +255,20 @@
     }
   </script>
 
-  <script src="./GLTFLoader.js"></script>
+  <script src="/js/GLTFLoader.js"></script>
   <script>
     logDebug("GLTFLoader.js tag executed");
     logDebug("THREE.GLTFLoader exists =", !!(window.THREE && window.THREE.GLTFLoader));
   </script>
 
-  <script type="module" src="./camera.js"></script>
+  <script type="module" src="/camera.js"></script>
   <script>
     logDebug("camera.js module tag added");
   </script>
 
-  <script type="module" src="./avatar.js"></script>
+  <script type="module" src="/avatar.js"></script>
   <script>
     logDebug("avatar.js module tag added");
-  </script>
-
-  <script>
-    window.addEventListener("beforeunload", () => {
-      logDebug("beforeunload triggered");
-      navigator.sendBeacon("/__shutdown__");
-    });
   </script>
 </body>
 </html>

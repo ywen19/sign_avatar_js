@@ -7,7 +7,7 @@ const boneNameMap = {};
 let poseFrames = {};
 let maxFrame = 0;
 let fps = 30;
-let currentAnimationUrl = null;
+let currentAnimationName = null;
 
 const clock = new THREE.Clock();
 const stageEl = document.getElementById("avatar-stage");
@@ -57,14 +57,14 @@ function init() {
 }
 
 function loadModel() {
-  const url = "model.glb";
+  const url = "/models/model.glb";
   log("Trying to load model from:", url);
 
   const loader = new THREE.GLTFLoader();
 
   loader.load(
     url,
-    function (gltf) {
+    async function (gltf) {
       avatar = gltf.scene;
       avatar.scale.set(100, 100, 100);
       scene.add(avatar);
@@ -97,6 +97,9 @@ function loadModel() {
       }
 
       log("GLB loaded successfully.");
+
+      // 模型加载成功后，再从后端拿默认动画
+      await fetchDefaultAnimationFromBackend();
     },
     undefined,
     function (err) {
@@ -105,29 +108,14 @@ function loadModel() {
   );
 }
 
-async function loadAnimationByUrl(jsonUrl) {
-  log("Loading animation JSON from:", jsonUrl);
-
-  const res = await fetch(jsonUrl);
-  if (!res.ok) {
-    throw new Error(`Failed to load ${jsonUrl}: HTTP ${res.status}`);
-  }
-
-  const data = await res.json();
-  fps = data.fps || 30;
-
-  preparePoseFrames(data);
-  currentAnimationUrl = jsonUrl;
-
-  // 切动画时把时间归零，这样从第一帧开始播
-  updateAnimation.time = 0;
-
-  log("Animation switched to:", jsonUrl, "fps =", fps, "maxFrame =", maxFrame);
-}
-
 function preparePoseFrames(data) {
   poseFrames = {};
   maxFrame = 0;
+
+  if (!data || !data.bones) {
+    console.error("Invalid animation data: missing bones");
+    return;
+  }
 
   for (const name in data.bones) {
     const arr = [];
@@ -148,6 +136,64 @@ function preparePoseFrames(data) {
   }
 
   log("Prepared animation. fps =", fps, "maxFrame =", maxFrame);
+}
+
+function applyAnimationPayload(payload) {
+  if (!payload) {
+    console.error("applyAnimationPayload: payload is empty");
+    return;
+  }
+
+  log("Applying payload:", payload);
+
+  const framesData = payload.frames;
+  if (!framesData) {
+    console.error("Payload missing frames field");
+    return;
+  }
+
+  fps = framesData.fps || 30;
+  currentAnimationName = payload.animation || "unknown";
+
+  preparePoseFrames(framesData);
+
+  // 切换动画时从第一帧开始播
+  updateAnimation.time = 0;
+
+  log("Animation applied:", currentAnimationName);
+}
+
+async function fetchDefaultAnimationFromBackend() {
+  try {
+    log("Fetching default animation from /api/start");
+    const res = await fetch("/api/start");
+    if (!res.ok) {
+      throw new Error(`GET /api/start failed: HTTP ${res.status}`);
+    }
+
+    const payload = await res.json();
+    applyAnimationPayload(payload);
+  } catch (err) {
+    console.error("fetchDefaultAnimationFromBackend failed:", err);
+  }
+}
+
+async function fetchEndAnimationFromBackend() {
+  try {
+    log("Fetching end animation from /api/end");
+    const res = await fetch("/api/end", {
+      method: "POST"
+    });
+
+    if (!res.ok) {
+      throw new Error(`POST /api/end failed: HTTP ${res.status}`);
+    }
+
+    const payload = await res.json();
+    applyAnimationPayload(payload);
+  } catch (err) {
+    console.error("fetchEndAnimationFromBackend failed:", err);
+  }
 }
 
 function updateAnimation(dt) {
@@ -194,16 +240,10 @@ function onWindowResize() {
   renderer.setSize(width, height);
 }
 
-window.switchAvatarAnimation = async function (jsonUrl) {
-  try {
-    await loadAnimationByUrl(jsonUrl);
-  } catch (err) {
-    console.error("switchAvatarAnimation failed:", err);
-  }
-};
+window.fetchEndAnimationFromBackend = fetchEndAnimationFromBackend;
 
-window.getCurrentAnimationUrl = function () {
-  return currentAnimationUrl;
+window.getCurrentAnimationName = function () {
+  return currentAnimationName;
 };
 
 window.addEventListener("error", function (e) {
@@ -225,5 +265,4 @@ if (!THREE.GLTFLoader) {
 
 init();
 loadModel();
-loadAnimationByUrl("anim_a.json");
 animate();

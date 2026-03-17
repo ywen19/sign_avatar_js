@@ -37,25 +37,35 @@ async function startCamera() {
   }
 }
 
-function stopCamera() {
+async function stopCamera() {
   if (stream) {
     stream.getTracks().forEach((track) => track.stop());
     videoEl.srcObject = null;
     stream = null;
   }
 
-  if (window.switchAvatarAnimation && window.getCurrentAnimationUrl) {
-    const current = window.getCurrentAnimationUrl();
-    const next = current === "Dancing_mixamo_com_frames.json" ? "Headbutt_mixamo_com_frames.json" : "Dancing_mixamo_com_frames.json";
-    window.switchAvatarAnimation(next);
-    setStatus(`Switched animation to: ${next}`);
+  setStatus('Camera stopped.');
+
+  // 改成真正走后端
+  if (window.fetchEndAnimationFromBackend) {
+    try {
+      await window.fetchEndAnimationFromBackend();
+      setStatus('Camera stopped. End animation loaded from backend.');
+    } catch (error) {
+      console.error('Failed to fetch end animation from backend:', error);
+      setStatus('Camera stopped, but failed to load end animation.');
+    }
   } else {
-    setStatus('Camera stopped.');
+    console.warn('fetchEndAnimationFromBackend is not available.');
   }
 }
 
 startBtn.addEventListener('click', startCamera);
 stopBtn.addEventListener('click', stopCamera);
-window.addEventListener('beforeunload', stopCamera);
+window.addEventListener('beforeunload', () => {
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+  }
+});
 
 setStatus('Camera idle.');
