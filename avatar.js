@@ -1,11 +1,13 @@
+console.log("AVATAR JS LOADED");
+
 let scene, camera, renderer, avatar;
 let skeleton = null;
 const boneNameMap = {};
 
-let animData = null;
 let poseFrames = {};
 let maxFrame = 0;
 let fps = 30;
+let currentAnimationUrl = null;
 
 const clock = new THREE.Clock();
 const stageEl = document.getElementById("avatar-stage");
@@ -15,7 +17,13 @@ function normalizeBoneName(name) {
   return name.replace(/^mixamorig[:_]?/i, "");
 }
 
+function log(...args) {
+  console.log("[AVATAR]", ...args);
+}
+
 function init() {
+  log("stageEl =", stageEl);
+
   if (!stageEl) {
     console.error("avatar-stage container not found.");
     return;
@@ -28,7 +36,8 @@ function init() {
   const height = stageEl.clientHeight || 600;
 
   camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-  camera.position.set(0, 1.6, 3);
+  camera.position.set(0, 8.0, 23.0);
+  camera.lookAt(0, 8.0, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(width, height);
@@ -49,7 +58,7 @@ function init() {
 
 function loadModel() {
   const url = "model.glb";
-  console.log("Trying to load model from:", url);
+  log("Trying to load model from:", url);
 
   const loader = new THREE.GLTFLoader();
 
@@ -57,7 +66,6 @@ function loadModel() {
     url,
     function (gltf) {
       avatar = gltf.scene;
-
       avatar.scale.set(100, 100, 100);
       scene.add(avatar);
 
@@ -67,15 +75,10 @@ function loadModel() {
       bbox.getSize(size);
       bbox.getCenter(center);
 
-      console.log("Model bbox size:", size);
-      console.log("Model bbox center:", center);
+      log("Model bbox size:", size);
+      log("Model bbox center:", center);
 
       avatar.position.sub(center);
-
-      const targetY = 8.0;
-      const distance = 23.0;
-      camera.position.set(0, targetY, distance);
-      camera.lookAt(0, targetY, 0);
 
       avatar.traverse((obj) => {
         if (obj.isSkinnedMesh && !skeleton) {
@@ -90,10 +93,10 @@ function loadModel() {
           const key = normalizeBoneName(bone.name);
           boneNameMap[key] = bone;
         });
-        console.log("Skeleton bones normalized:", Object.keys(boneNameMap));
+        log("Skeleton bones normalized:", Object.keys(boneNameMap));
       }
 
-      console.log("GLB loaded successfully.");
+      log("GLB loaded successfully.");
     },
     undefined,
     function (err) {
@@ -102,25 +105,24 @@ function loadModel() {
   );
 }
 
-function loadAnimation() {
-  const jsonUrl = "Dancing_mixamo_com_frames.json";
-  console.log("Loading JSON animation from:", jsonUrl);
+async function loadAnimationByUrl(jsonUrl) {
+  log("Loading animation JSON from:", jsonUrl);
 
-  fetch(jsonUrl)
-    .then((res) => {
-      console.log("JSON fetch status =", res.status);
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
-    })
-    .then((data) => {
-      console.log("JSON animation loaded OK.");
-      animData = data;
-      fps = data.fps || fps;
-      preparePoseFrames(data);
-    })
-    .catch((err) => {
-      console.error("Load JSON animation failed:", err);
-    });
+  const res = await fetch(jsonUrl);
+  if (!res.ok) {
+    throw new Error(`Failed to load ${jsonUrl}: HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+  fps = data.fps || 30;
+
+  preparePoseFrames(data);
+  currentAnimationUrl = jsonUrl;
+
+  // 切动画时把时间归零，这样从第一帧开始播
+  updateAnimation.time = 0;
+
+  log("Animation switched to:", jsonUrl, "fps =", fps, "maxFrame =", maxFrame);
 }
 
 function preparePoseFrames(data) {
@@ -145,11 +147,11 @@ function preparePoseFrames(data) {
     poseFrames[norm] = arr;
   }
 
-  console.log("Prepared JSON animation. fps =", fps, "maxFrame =", maxFrame);
+  log("Prepared animation. fps =", fps, "maxFrame =", maxFrame);
 }
 
 function updateAnimation(dt) {
-  if (!avatar || !animData || !skeleton) return;
+  if (!avatar || !skeleton || !maxFrame) return;
 
   if (updateAnimation.time === undefined) updateAnimation.time = 0;
   updateAnimation.time += dt;
@@ -192,6 +194,18 @@ function onWindowResize() {
   renderer.setSize(width, height);
 }
 
+window.switchAvatarAnimation = async function (jsonUrl) {
+  try {
+    await loadAnimationByUrl(jsonUrl);
+  } catch (err) {
+    console.error("switchAvatarAnimation failed:", err);
+  }
+};
+
+window.getCurrentAnimationUrl = function () {
+  return currentAnimationUrl;
+};
+
 window.addEventListener("error", function (e) {
   console.error("Global JS error:", e.message, "@", e.filename + ":" + e.lineno);
 });
@@ -200,16 +214,16 @@ window.addEventListener("unhandledrejection", function (e) {
   console.error("Unhandled promise rejection:", e.reason);
 });
 
-console.log("Page loaded. href =", window.location.href);
-console.log("THREE version:", THREE.REVISION);
+log("Page loaded. href =", window.location.href);
+log("THREE version:", THREE.REVISION);
 
 if (!THREE.GLTFLoader) {
   console.error("GLTFLoader NOT detected!");
 } else {
-  console.log("GLTFLoader detected.");
+  log("GLTFLoader detected.");
 }
 
 init();
 loadModel();
-loadAnimation();
+loadAnimationByUrl("anim_a.json");
 animate();

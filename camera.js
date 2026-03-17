@@ -38,15 +38,20 @@ async function startCamera() {
 }
 
 function stopCamera() {
-  if (!stream) {
-    setStatus('Camera is not running.');
-    return;
+  if (stream) {
+    stream.getTracks().forEach((track) => track.stop());
+    videoEl.srcObject = null;
+    stream = null;
   }
 
-  stream.getTracks().forEach((track) => track.stop());
-  videoEl.srcObject = null;
-  stream = null;
-  setStatus('Camera stopped.');
+  if (window.switchAvatarAnimation && window.getCurrentAnimationUrl) {
+    const current = window.getCurrentAnimationUrl();
+    const next = current === "Dancing_mixamo_com_frames.json" ? "Headbutt_mixamo_com_frames.json" : "Dancing_mixamo_com_frames.json";
+    window.switchAvatarAnimation(next);
+    setStatus(`Switched animation to: ${next}`);
+  } else {
+    setStatus('Camera stopped.');
+  }
 }
 
 startBtn.addEventListener('click', startCamera);
