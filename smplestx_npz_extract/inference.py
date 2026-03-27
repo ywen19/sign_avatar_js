@@ -14,7 +14,7 @@ from ultralytics import YOLO
 from main.base import Tester
 from main.config import Config
 from utils.data_utils import load_img, process_bbox, generate_patch_image
-# from utils.visualization_utils import render_mesh
+#from utils.visualization_utils import render_mesh
 from utils.inference_utils import non_max_suppression
 
 
@@ -61,12 +61,12 @@ def main():
         },
         "log":{
             'exp_name':  exp_name,
-            'log_dir': osp.join(root_dir, 'outputs', exp_name, 'log'),  
+            'log_dir': osp.join(root_dir, 'outputs', exp_name, 'log'),
             }
     }
     cfg.update_config(new_config)
     cfg.prepare_log()
-    
+
     # init human models
     smpl_x = SMPLX(cfg.model.human_model_path)
 
@@ -77,41 +77,48 @@ def main():
     demoer._make_model()
 
     # init detector
-    bbox_model = getattr(cfg.inference.detection, "model_path", 
+    bbox_model = getattr(cfg.inference.detection, "model_path",
                         './pretrained_models/yolov8x.pt')
     detector = YOLO(bbox_model)
 
     start = int(args.start)
     end = int(args.end) + 1
 
+    # accumulate one person across all frames
+    frame_ids = []
+    global_orient_list = []
+    body_pose_list = []
+    left_hand_pose_list = []
+    right_hand_pose_list = []
+    jaw_pose_list = []
+    betas_list = []
+    expression_list = []
+
     for frame in tqdm(range(start, end)):
-        
+
         # prepare input image
-        img_path =osp.join(img_folder, f'{int(frame):06d}.jpg')
+        img_path = osp.join(img_folder, f'{int(frame):06d}.jpg')
 
         transform = transforms.ToTensor()
         original_img = load_img(img_path)
         vis_img = original_img.copy()
         original_img_height, original_img_width = original_img.shape[:2]
-        
+
         # detection, xyxy
-        yolo_bbox = detector.predict(original_img, 
-                                device='cuda', 
-                                classes=00, 
-                                conf=cfg.inference.detection.conf, 
-                                save=cfg.inference.detection.save, 
+        yolo_bbox = detector.predict(
+                                original_img,
+                                device='cuda',
+                                classes=0,
+                                conf=cfg.inference.detection.conf,
+                                save=cfg.inference.detection.save,
                                 verbose=cfg.inference.detection.verbose
                                     )[0].boxes.xyxy.detach().cpu().numpy()
 
-        if len(yolo_bbox)<1:
-            # save original image if no bbox
-            num_bbox = 0
+        if len(yolo_bbox) < 1:
+            continue
         elif not args.multi_person:
-            # only select the largest bbox
             num_bbox = 1
-            # yolo_bbox = yolo_bbox[0]
         else:
-            # keep bbox by NMS with iou_thr
             yolo_bbox = non_max_suppression(yolo_bbox, cfg.inference.detection.iou_thr)
             num_bbox = len(yolo_bbox)
 
@@ -122,20 +129,20 @@ def main():
             yolo_bbox_xywh[1] = yolo_bbox[bbox_id][1]
             yolo_bbox_xywh[2] = abs(yolo_bbox[bbox_id][2] - yolo_bbox[bbox_id][0])
             yolo_bbox_xywh[3] = abs(yolo_bbox[bbox_id][3] - yolo_bbox[bbox_id][1])
-            
+
             # xywh
-            bbox = process_bbox(bbox=yolo_bbox_xywh, 
-                                img_width=original_img_width, 
-                                img_height=original_img_height, 
-                                input_img_shape=cfg.model.input_img_shape, 
-                                ratio=getattr(cfg.data, "bbox_ratio", 1.25))                
-            img, _, _ = generate_patch_image(cvimg=original_img, 
-                                                bbox=bbox, 
-                                                scale=1.0, 
-                                                rot=0.0, 
-                                                do_flip=False, 
+            bbox = process_bbox(bbox=yolo_bbox_xywh,
+                                img_width=original_img_width,
+                                img_height=original_img_height,
+                                input_img_shape=cfg.model.input_img_shape,
+                                ratio=getattr(cfg.data, "bbox_ratio", 1.25))
+            img, _, _ = generate_patch_image(cvimg=original_img,
+                                                bbox=bbox,
+                                                scale=1.0,
+                                                rot=0.0,
+                                                do_flip=False,
                                                 out_shape=cfg.model.input_img_shape)
-                
+
             img = transform(img.astype(np.float32))/255
             img = img.cuda()[None,:,:,:]
             inputs = {'img': img}
@@ -146,40 +153,47 @@ def main():
             with torch.no_grad():
                 out = demoer.model(inputs, targets, meta_info, 'test')
 
-            out_np = to_numpy_dict(out)
+            if frame == start and bbox_id == 0:
+                print("OUT KEYS:", sorted(out.keys()))
+                for k, v in out.items():
+                    if torch.is_tensor(v):
+                        print(f"{k}: shape={tuple(v.shape)}, dtype={v.dtype}, device={v.device}")
+                    else:
+                        print(f"{k}: type={type(v)}")
 
-            save_path = os.path.join(
-                output_folder,
-                f"{frame:06d}_person{bbox_id:02d}.npz"
-            )
+            # keep only one person track
+            frame_ids.append(np.int32(frame))
+            global_orient_list.append(out['smplx_root_pose'].detach().cpu().numpy()[0].astype(np.float32))
+            body_pose_list.append(out['smplx_body_pose'].detach().cpu().numpy()[0].astype(np.float32))
+            left_hand_pose_list.append(out['smplx_lhand_pose'].detach().cpu().numpy()[0].astype(np.float32))
+            right_hand_pose_list.append(out['smplx_rhand_pose'].detach().cpu().numpy()[0].astype(np.float32))
+            jaw_pose_list.append(out['smplx_jaw_pose'].detach().cpu().numpy()[0].astype(np.float32))
+            betas_list.append(out['smplx_shape'].detach().cpu().numpy()[0].astype(np.float32))
+            expression_list.append(out['smplx_expr'].detach().cpu().numpy()[0].astype(np.float32))
 
-            np.savez_compressed(
-                save_path,
-                frame_id=np.int32(frame),
-                person_id=np.int32(bbox_id),
-                img_path=np.array(img_path),
-                yolo_bbox=np.array(yolo_bbox[bbox_id], dtype=np.float32),
-                processed_bbox=np.array(bbox, dtype=np.float32),
-                **out_np
-            )
-
-            # mesh = out['smplx_mesh_cam'].detach().cpu().numpy()[0]
-
-            # render mesh
-            # focal = [cfg.model.focal[0] / cfg.model.input_body_shape[1] * bbox[2], 
-            #          cfg.model.focal[1] / cfg.model.input_body_shape[0] * bbox[3]]
-            # princpt = [cfg.model.princpt[0] / cfg.model.input_body_shape[1] * bbox[2] + bbox[0], 
-            #            cfg.model.princpt[1] / cfg.model.input_body_shape[0] * bbox[3] + bbox[1]]
-            
-            # draw the bbox on img
-            # vis_img = cv2.rectangle(vis_img, (int(yolo_bbox[bbox_id][0]), int(yolo_bbox[bbox_id][1])), 
-            #                         (int(yolo_bbox[bbox_id][2]), int(yolo_bbox[bbox_id][3])), (0, 255, 0), 1)
-            # draw mesh
-            # vis_img = render_mesh(vis_img, mesh, smpl_x.face, {'focal': focal, 'princpt': princpt}, mesh_as_vertices=False)
+            break  # only save one person per frame
 
         # save rendered image
         # frame_name = os.path.basename(img_path)
         # cv2.imwrite(os.path.join(output_folder, frame_name), vis_img[:, :, ::-1])
+
+    save_path = os.path.join(
+        output_folder,
+        f"{args.file_name}_person00_smplx_pose.npz"
+    )
+
+    np.savez_compressed(
+        save_path,
+        frame_ids=np.asarray(frame_ids, dtype=np.int32),
+        person_id=np.int32(0),
+        global_orient=np.stack(global_orient_list, axis=0),
+        body_pose=np.stack(body_pose_list, axis=0),
+        left_hand_pose=np.stack(left_hand_pose_list, axis=0),
+        right_hand_pose=np.stack(right_hand_pose_list, axis=0),
+        jaw_pose=np.stack(jaw_pose_list, axis=0),
+        betas=np.stack(betas_list, axis=0),
+        expression=np.stack(expression_list, axis=0),
+    )
 
 
 if __name__ == "__main__":
