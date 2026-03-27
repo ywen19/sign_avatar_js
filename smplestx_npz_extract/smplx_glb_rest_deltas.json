@@ -1,0 +1,3007 @@
+{
+  "meta": {
+    "blender_rest_json": "smplx_blender_rest_pose_dump.json",
+    "glb_rest_json": "glb_js_rest_pose_dump.json",
+    "shared_bone_count": 56,
+    "blender_only_count": 0,
+    "glb_only_count": 0,
+    "angle_eps_deg": 0.001,
+    "pos_eps": 1e-06
+  },
+  "blender_only_bones": [],
+  "glb_only_bones": [],
+  "bones": {
+    "head": {
+      "parent_blender": "neck",
+      "parent_glb": "neck",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.008800015785,
+        0.146600112319,
+        0.022064436227
+      ],
+      "glb_rest_local_translation": [
+        0.008800015785,
+        0.146600112319,
+        0.022064436227
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "jaw": {
+      "parent_blender": "head",
+      "parent_glb": "head",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.003361093579,
+        -0.002747654915,
+        -0.007630202919
+      ],
+      "glb_rest_local_translation": [
+        -0.003361093579,
+        -0.002747654915,
+        -0.007630202919
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_ankle": {
+      "parent_blender": "left_knee",
+      "parent_glb": "left_knee",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.00827588141,
+        -0.386950790882,
+        -0.020596973598
+      ],
+      "glb_rest_local_translation": [
+        -0.00827588141,
+        -0.386950790882,
+        -0.020596973598
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_collar": {
+      "parent_blender": "spine3",
+      "parent_glb": "spine3",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.052238374949,
+        0.114279896021,
+        -0.017978383228
+      ],
+      "glb_rest_local_translation": [
+        0.052238374949,
+        0.114279896021,
+        -0.017978383228
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_elbow": {
+      "parent_blender": "left_shoulder",
+      "parent_glb": "left_shoulder",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.272244215012,
+        -0.055882811546,
+        -0.027278773487
+      ],
+      "glb_rest_local_translation": [
+        0.272244215012,
+        -0.055882811546,
+        -0.027278773487
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_eye_smplhf": {
+      "parent_blender": "head",
+      "parent_glb": "head",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.028216499835,
+        0.034197717905,
+        0.067316398025
+      ],
+      "glb_rest_local_translation": [
+        0.028216499835,
+        0.034197717905,
+        0.067316398025
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_foot": {
+      "parent_blender": "left_ankle",
+      "parent_glb": "left_ankle",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.021547861397,
+        -0.043891072273,
+        0.107399687171
+      ],
+      "glb_rest_local_translation": [
+        0.021547861397,
+        -0.043891072273,
+        0.107399687171
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_hip": {
+      "parent_blender": "pelvis",
+      "parent_glb": "pelvis",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.072898775339,
+        -0.088478177786,
+        -0.014484239742
+      ],
+      "glb_rest_local_translation": [
+        0.072898775339,
+        -0.088478177786,
+        -0.014484239742
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_index1": {
+      "parent_blender": "left_wrist",
+      "parent_glb": "left_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.055403608829,
+        0.0212787278,
+        -0.206596031785,
+        0.976624667645
+      ],
+      "rotation_delta_xyzw": [
+        -0.055403608665,
+        -0.021278727737,
+        0.206596031173,
+        -0.976624664749
+      ],
+      "rotation_delta_rotvec": [
+        0.111678757104,
+        0.042892185611,
+        -0.416441970841
+      ],
+      "rotation_delta_angle_deg": 24.825395758522,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.099976301193,
+        -0.014504924417,
+        0.019800808281
+      ],
+      "glb_rest_local_translation": [
+        0.099976301193,
+        -0.014504924417,
+        0.019800808281
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_index2": {
+      "parent_blender": "left_index1",
+      "parent_glb": "left_index1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.053082346916,
+        -0.032190352678,
+        -0.368913203478,
+        0.927388310432
+      ],
+      "rotation_delta_xyzw": [
+        -0.053082347331,
+        0.03219035293,
+        0.368913206358,
+        -0.927388317672
+      ],
+      "rotation_delta_rotvec": [
+        0.108811326896,
+        -0.06598568435,
+        -0.756220052649
+      ],
+      "rotation_delta_angle_deg": 43.937412755463,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.030929327011,
+        0.002719275653,
+        0.002658110112
+      ],
+      "glb_rest_local_translation": [
+        0.030929459259,
+        0.002719268668,
+        0.002658109413
+      ],
+      "translation_delta": [
+        1.32248e-07,
+        -6.985e-09,
+        -6.98e-10
+      ],
+      "translation_delta_norm": 1.32434e-07,
+      "translation_zeroish": true
+    },
+    "left_index3": {
+      "parent_blender": "left_index2",
+      "parent_glb": "left_index2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.048089984804,
+        -0.045357383788,
+        -0.094021447003,
+        0.993373095989
+      ],
+      "rotation_delta_xyzw": [
+        0.048089982899,
+        0.045357381991,
+        0.094021443278,
+        -0.993373056635
+      ],
+      "rotation_delta_rotvec": [
+        -0.096392990315,
+        -0.090915683877,
+        -0.188459373967
+      ],
+      "rotation_delta_angle_deg": 13.199709837673,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.02190476656,
+        -0.001364357769,
+        0.000398371369
+      ],
+      "glb_rest_local_translation": [
+        0.021904760972,
+        -0.00136447046,
+        0.000398374512
+      ],
+      "translation_delta": [
+        -5.588e-09,
+        -1.1269e-07,
+        3.143e-09
+      ],
+      "translation_delta_norm": 1.12872e-07,
+      "translation_zeroish": true
+    },
+    "left_knee": {
+      "parent_blender": "left_hip",
+      "parent_glb": "left_hip",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.026337757707,
+        -0.376224160194,
+        -0.021244488657
+      ],
+      "glb_rest_local_translation": [
+        0.026337757707,
+        -0.376224160194,
+        -0.021244488657
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_middle1": {
+      "parent_blender": "left_wrist",
+      "parent_glb": "left_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.058319512755,
+        0.02515787445,
+        -0.261527597904,
+        0.963103950024
+      ],
+      "rotation_delta_xyzw": [
+        0.058319513127,
+        -0.025157874611,
+        0.261527599574,
+        -0.963103956172
+      ],
+      "rotation_delta_rotvec": [
+        -0.118095043856,
+        0.05094384617,
+        -0.52958455387
+      ],
+      "rotation_delta_angle_deg": 31.22496529871,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.106799542904,
+        -0.012180142105,
+        -0.002248916775
+      ],
+      "glb_rest_local_translation": [
+        0.106799542904,
+        -0.012180142105,
+        -0.002248916775
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_middle2": {
+      "parent_blender": "left_middle1",
+      "parent_glb": "left_middle1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.070301033556,
+        0.027025686577,
+        -0.344834566116,
+        0.935636937618
+      ],
+      "rotation_delta_xyzw": [
+        0.070301034257,
+        -0.027025686846,
+        0.344834569551,
+        -0.935636946938
+      ],
+      "rotation_delta_rotvec": [
+        -0.143698461123,
+        0.055241713748,
+        -0.704857297058
+      ],
+      "rotation_delta_angle_deg": 41.337414085146,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.029370188713,
+        0.001363389194,
+        -0.003804065287
+      ],
+      "glb_rest_local_translation": [
+        0.029370127246,
+        0.00136341434,
+        -0.003804072505
+      ],
+      "translation_delta": [
+        -6.1467e-08,
+        2.5146e-08,
+        -7.218e-09
+      ],
+      "translation_delta_norm": 6.6803e-08,
+      "translation_zeroish": true
+    },
+    "left_middle3": {
+      "parent_blender": "left_middle2",
+      "parent_glb": "left_middle2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.009542346001,
+        -0.045932013541,
+        -0.168091565371,
+        0.984654486179
+      ],
+      "rotation_delta_xyzw": [
+        0.009542345821,
+        0.045932012675,
+        0.168091562199,
+        -0.9846544676
+      ],
+      "rotation_delta_rotvec": [
+        -0.019182916416,
+        -0.092336829593,
+        -0.337913386131
+      ],
+      "rotation_delta_angle_deg": 20.100902109645,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.022789239883,
+        -0.000545494258,
+        -0.003684960306
+      ],
+      "glb_rest_local_translation": [
+        0.022789213806,
+        -0.000545505667,
+        -0.003684975207
+      ],
+      "translation_delta": [
+        -2.6077e-08,
+        -1.1409e-08,
+        -1.4901e-08
+      ],
+      "translation_delta_norm": 3.2128e-08,
+      "translation_zeroish": true
+    },
+    "left_pinky1": {
+      "parent_blender": "left_wrist",
+      "parent_glb": "left_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.222484409809,
+        -0.095551341772,
+        -0.304473727942,
+        0.921230912209
+      ],
+      "rotation_delta_xyzw": [
+        0.222484408014,
+        0.095551341001,
+        0.304473725485,
+        -0.921230904775
+      ],
+      "rotation_delta_rotvec": [
+        -0.457033069754,
+        -0.19628396923,
+        -0.62545758896
+      ],
+      "rotation_delta_angle_deg": 45.786599264392,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.082059383392,
+        -0.019658051431,
+        -0.039619300514
+      ],
+      "glb_rest_local_translation": [
+        0.082059383392,
+        -0.019658051431,
+        -0.039619300514
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_pinky2": {
+      "parent_blender": "left_pinky1",
+      "parent_glb": "left_pinky1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.105956949294,
+        -0.032578151673,
+        -0.250213712454,
+        0.961823701859
+      ],
+      "rotation_delta_xyzw": [
+        0.105956952132,
+        0.032578152546,
+        0.250213719156,
+        -0.961823727623
+      ],
+      "rotation_delta_rotvec": [
+        -0.214652463857,
+        -0.065998318856,
+        -0.506894453144
+      ],
+      "rotation_delta_angle_deg": 31.765507975456,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.014282464981,
+        -0.000407546759,
+        -0.011711545289
+      ],
+      "glb_rest_local_translation": [
+        0.014282468706,
+        -0.000407545827,
+        -0.011711542495
+      ],
+      "translation_delta": [
+        3.725e-09,
+        9.31e-10,
+        2.794e-09
+      ],
+      "translation_delta_norm": 4.749e-09,
+      "translation_zeroish": true
+    },
+    "left_pinky3": {
+      "parent_blender": "left_pinky2",
+      "parent_glb": "left_pinky2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.183734595776,
+        -0.029988277704,
+        -0.039502687752,
+        0.98172390461
+      ],
+      "rotation_delta_xyzw": [
+        0.183734597089,
+        0.029988277918,
+        0.039502688035,
+        -0.981723911626
+      ],
+      "rotation_delta_rotvec": [
+        -0.36972432195,
+        -0.060344626953,
+        -0.079490225468
+      ],
+      "rotation_delta_angle_deg": 21.941833325635,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.01456207037,
+        -0.000864647329,
+        -0.011355526745
+      ],
+      "glb_rest_local_translation": [
+        0.014562047087,
+        -0.000864638481,
+        -0.011355520226
+      ],
+      "translation_delta": [
+        -2.3283e-08,
+        8.848e-09,
+        6.519e-09
+      ],
+      "translation_delta_norm": 2.5746e-08,
+      "translation_zeroish": true
+    },
+    "left_ring1": {
+      "parent_blender": "left_wrist",
+      "parent_glb": "left_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.069666683674,
+        -0.042158883065,
+        -0.312083184719,
+        0.946558654308
+      ],
+      "rotation_delta_xyzw": [
+        0.069666683031,
+        0.042158882676,
+        0.312083181838,
+        -0.946558645569
+      ],
+      "rotation_delta_rotvec": [
+        -0.141869723192,
+        -0.085852645125,
+        -0.635528385938
+      ],
+      "rotation_delta_angle_deg": 37.63220751628,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.095020115376,
+        -0.014763697982,
+        -0.024294298142
+      ],
+      "glb_rest_local_translation": [
+        0.095020115376,
+        -0.014763697982,
+        -0.024294298142
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_ring2": {
+      "parent_blender": "left_ring1",
+      "parent_glb": "left_ring1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.148568034172,
+        -0.028348442167,
+        -0.309236317873,
+        0.938880681992
+      ],
+      "rotation_delta_xyzw": [
+        0.148568024496,
+        0.028348440321,
+        0.309236297732,
+        -0.938880620842
+      ],
+      "rotation_delta_rotvec": [
+        -0.303341620887,
+        -0.057880973148,
+        -0.631389157321
+      ],
+      "rotation_delta_angle_deg": 40.27117384749,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.026728928089,
+        0.001656360924,
+        -0.005247406662
+      ],
+      "glb_rest_local_translation": [
+        0.02672887221,
+        0.001656359993,
+        -0.005247417837
+      ],
+      "translation_delta": [
+        -5.5879e-08,
+        -9.31e-10,
+        -1.1176e-08
+      ],
+      "translation_delta_norm": 5.6994e-08,
+      "translation_zeroish": true
+    },
+    "left_ring3": {
+      "parent_blender": "left_ring2",
+      "parent_glb": "left_ring2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.087372764945,
+        -0.065530739725,
+        -0.185219481587,
+        0.976609170437
+      ],
+      "rotation_delta_xyzw": [
+        0.087372764681,
+        0.065530739527,
+        0.185219481028,
+        -0.976609167486
+      ],
+      "rotation_delta_rotvec": [
+        -0.176120887461,
+        -0.132093015982,
+        -0.373354551533
+      ],
+      "rotation_delta_angle_deg": 24.833656052581,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.021861672401,
+        -0.000934578478,
+        -0.006977722049
+      ],
+      "glb_rest_local_translation": [
+        0.021861653775,
+        -0.000934666721,
+        -0.00697774021
+      ],
+      "translation_delta": [
+        -1.8626e-08,
+        -8.8243e-08,
+        -1.8161e-08
+      ],
+      "translation_delta_norm": 9.1998e-08,
+      "translation_zeroish": true
+    },
+    "left_shoulder": {
+      "parent_blender": "left_collar",
+      "parent_glb": "left_collar",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.08847860992,
+        0.045554473996,
+        -0.027641506866
+      ],
+      "glb_rest_local_translation": [
+        0.08847860992,
+        0.045554473996,
+        -0.027641506866
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_thumb1": {
+      "parent_blender": "left_wrist",
+      "parent_glb": "left_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.411280721426,
+        0.133839920163,
+        -0.044246219099,
+        0.900542795658
+      ],
+      "rotation_delta_xyzw": [
+        -0.411280719213,
+        -0.133839919443,
+        0.04424621886,
+        -0.900542790812
+      ],
+      "rotation_delta_rotvec": [
+        0.85096458475,
+        0.276922856218,
+        -0.091548092338
+      ],
+      "rotation_delta_angle_deg": 51.54098671839,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.041607201099,
+        -0.021897107363,
+        0.025896515697
+      ],
+      "glb_rest_local_translation": [
+        0.041607201099,
+        -0.021897107363,
+        0.025896515697
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "left_thumb2": {
+      "parent_blender": "left_thumb1",
+      "parent_glb": "left_thumb1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.247290015221,
+        0.013138522394,
+        0.026162227616,
+        0.96849912405
+      ],
+      "rotation_delta_xyzw": [
+        0.247290016724,
+        -0.013138522474,
+        -0.026162227775,
+        -0.968499129939
+      ],
+      "rotation_delta_rotvec": [
+        -0.499839599757,
+        0.026556485788,
+        0.052880895205
+      ],
+      "rotation_delta_angle_deg": 28.838694526167,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.016685307026,
+        0.000733196735,
+        0.023067725822
+      ],
+      "glb_rest_local_translation": [
+        0.016685366631,
+        0.00073319301,
+        0.023067722097
+      ],
+      "translation_delta": [
+        5.9605e-08,
+        -3.725e-09,
+        -3.725e-09
+      ],
+      "translation_delta_norm": 5.9837e-08,
+      "translation_zeroish": true
+    },
+    "left_thumb3": {
+      "parent_blender": "left_thumb2",
+      "parent_glb": "left_thumb2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.263716161251,
+        0.022631801665,
+        -0.13657464087,
+        0.954614579678
+      ],
+      "rotation_delta_xyzw": [
+        -0.263716155922,
+        -0.022631801208,
+        0.13657463811,
+        -0.954614560388
+      ],
+      "rotation_delta_rotvec": [
+        0.535559293274,
+        0.045961050122,
+        -0.277358117897
+      ],
+      "rotation_delta_angle_deg": 34.656307919299,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.019785404205,
+        -0.005621165037,
+        0.013987944461
+      ],
+      "glb_rest_local_translation": [
+        0.019785376266,
+        -0.005621166434,
+        0.013987944461
+      ],
+      "translation_delta": [
+        -2.794e-08,
+        -1.397e-09,
+        0.0
+      ],
+      "translation_delta_norm": 2.7975e-08,
+      "translation_zeroish": true
+    },
+    "left_wrist": {
+      "parent_blender": "left_elbow",
+      "parent_glb": "left_elbow",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.227420061827,
+        0.007542289793,
+        0.00408456102
+      ],
+      "glb_rest_local_translation": [
+        0.227420061827,
+        0.007542289793,
+        0.00408456102
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "neck": {
+      "parent_blender": "spine3",
+      "parent_glb": "spine3",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.005762235727,
+        0.194075852633,
+        -0.039961770177
+      ],
+      "glb_rest_local_translation": [
+        -0.005762235727,
+        0.194075852633,
+        -0.039961770177
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "pelvis": {
+      "parent_blender": "root",
+      "parent_glb": "root",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.000555970648,
+        -0.338249653578,
+        0.013525313698
+      ],
+      "glb_rest_local_translation": [
+        0.000555970648,
+        -0.338249653578,
+        0.013525313698
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_ankle": {
+      "parent_blender": "right_knee",
+      "parent_glb": "right_knee",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.003603085876,
+        -0.378385603428,
+        -0.016892522573
+      ],
+      "glb_rest_local_translation": [
+        0.003603085876,
+        -0.378385603428,
+        -0.016892522573
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_collar": {
+      "parent_blender": "spine3",
+      "parent_glb": "spine3",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.054697699845,
+        0.110255151987,
+        -0.02447681129
+      ],
+      "glb_rest_local_translation": [
+        -0.054697699845,
+        0.110255151987,
+        -0.02447681129
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_elbow": {
+      "parent_blender": "right_shoulder",
+      "parent_glb": "right_shoulder",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.262557089329,
+        -0.050777822733,
+        -0.020299334079
+      ],
+      "glb_rest_local_translation": [
+        -0.262557089329,
+        -0.050777822733,
+        -0.020299334079
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_eye_smplhf": {
+      "parent_blender": "head",
+      "parent_glb": "head",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.033700503409,
+        0.034197211266,
+        0.067315004766
+      ],
+      "glb_rest_local_translation": [
+        -0.033700503409,
+        0.034197211266,
+        0.067315004766
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_foot": {
+      "parent_blender": "right_ankle",
+      "parent_glb": "right_ankle",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.017403334379,
+        -0.047334194183,
+        0.101129919291
+      ],
+      "glb_rest_local_translation": [
+        -0.017403334379,
+        -0.047334194183,
+        0.101129919291
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_hip": {
+      "parent_blender": "pelvis",
+      "parent_glb": "pelvis",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.072194926441,
+        -0.094928264618,
+        -0.015812609345
+      ],
+      "glb_rest_local_translation": [
+        -0.072194926441,
+        -0.094928264618,
+        -0.015812609345
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_index1": {
+      "parent_blender": "right_wrist",
+      "parent_glb": "right_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.055403608829,
+        -0.0212787278,
+        0.206596031785,
+        0.976624667645
+      ],
+      "rotation_delta_xyzw": [
+        -0.055403608665,
+        0.021278727737,
+        -0.206596031173,
+        -0.976624664749
+      ],
+      "rotation_delta_rotvec": [
+        0.111678757104,
+        -0.042892185611,
+        0.416441970841
+      ],
+      "rotation_delta_angle_deg": 24.825395758522,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.098792970181,
+        -0.013693265617,
+        0.021285697818
+      ],
+      "glb_rest_local_translation": [
+        -0.098792970181,
+        -0.013693265617,
+        0.021285697818
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_index2": {
+      "parent_blender": "right_index1",
+      "parent_glb": "right_index1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.053082346916,
+        0.032190352678,
+        0.368913203478,
+        0.927388310432
+      ],
+      "rotation_delta_xyzw": [
+        -0.053082347331,
+        -0.03219035293,
+        -0.368913206358,
+        -0.927388317672
+      ],
+      "rotation_delta_rotvec": [
+        0.108811326896,
+        0.06598568435,
+        0.756220052649
+      ],
+      "rotation_delta_angle_deg": 43.937412755463,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.030929088593,
+        0.002718225121,
+        0.002657063305
+      ],
+      "glb_rest_local_translation": [
+        -0.030929125845,
+        0.002718224889,
+        0.002657060046
+      ],
+      "translation_delta": [
+        -3.7253e-08,
+        -2.33e-10,
+        -3.26e-09
+      ],
+      "translation_delta_norm": 3.7396e-08,
+      "translation_zeroish": true
+    },
+    "right_index3": {
+      "parent_blender": "right_index2",
+      "parent_glb": "right_index2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.048089984804,
+        0.045357383788,
+        0.094021447003,
+        0.993373095989
+      ],
+      "rotation_delta_xyzw": [
+        0.048089982899,
+        -0.045357381991,
+        -0.094021443278,
+        -0.993373056635
+      ],
+      "rotation_delta_rotvec": [
+        -0.096392990315,
+        0.090915683877,
+        0.188459373967
+      ],
+      "rotation_delta_angle_deg": 13.199709837673,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.021904289722,
+        -0.001365073025,
+        0.000397689641
+      ],
+      "glb_rest_local_translation": [
+        -0.021904299036,
+        -0.001365104225,
+        0.000397685566
+      ],
+      "translation_delta": [
+        -9.313e-09,
+        -3.1199e-08,
+        -4.075e-09
+      ],
+      "translation_delta_norm": 3.2814e-08,
+      "translation_zeroish": true
+    },
+    "right_knee": {
+      "parent_blender": "right_hip",
+      "parent_glb": "right_hip",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.030216112733,
+        -0.372058361769,
+        -0.01511023473
+      ],
+      "glb_rest_local_translation": [
+        -0.030216112733,
+        -0.372058361769,
+        -0.01511023473
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_middle1": {
+      "parent_blender": "right_wrist",
+      "parent_glb": "right_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.058319512755,
+        -0.02515787445,
+        0.261527597904,
+        0.963103950024
+      ],
+      "rotation_delta_xyzw": [
+        0.058319513127,
+        0.025157874611,
+        -0.261527599574,
+        -0.963103956172
+      ],
+      "rotation_delta_rotvec": [
+        -0.118095043856,
+        -0.05094384617,
+        0.52958455387
+      ],
+      "rotation_delta_angle_deg": 31.22496529871,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.105616390705,
+        -0.011369369924,
+        -0.000765938312
+      ],
+      "glb_rest_local_translation": [
+        -0.105616390705,
+        -0.011369369924,
+        -0.000765938312
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_middle2": {
+      "parent_blender": "right_middle1",
+      "parent_glb": "right_middle1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.070301033556,
+        -0.027025686577,
+        0.344834566116,
+        0.935636937618
+      ],
+      "rotation_delta_xyzw": [
+        0.070301034257,
+        0.027025686846,
+        -0.344834569551,
+        -0.935636946938
+      ],
+      "rotation_delta_rotvec": [
+        -0.143698461123,
+        -0.055241713748,
+        0.704857297058
+      ],
+      "rotation_delta_angle_deg": 41.337414085146,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.02936989069,
+        0.001363202929,
+        -0.003804035485
+      ],
+      "glb_rest_local_translation": [
+        -0.029369847849,
+        0.001363223419,
+        -0.003804039443
+      ],
+      "translation_delta": [
+        4.2841e-08,
+        2.0489e-08,
+        -3.958e-09
+      ],
+      "translation_delta_norm": 4.7653e-08,
+      "translation_zeroish": true
+    },
+    "right_middle3": {
+      "parent_blender": "right_middle2",
+      "parent_glb": "right_middle2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.009542346001,
+        0.045932013541,
+        0.168091565371,
+        0.984654486179
+      ],
+      "rotation_delta_xyzw": [
+        0.009542345821,
+        -0.045932012675,
+        -0.168091562199,
+        -0.9846544676
+      ],
+      "rotation_delta_rotvec": [
+        -0.019182916416,
+        0.092336829593,
+        0.337913386131
+      ],
+      "rotation_delta_angle_deg": 20.100902109645,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.022789061069,
+        -0.000546336174,
+        -0.003685466945
+      ],
+      "glb_rest_local_translation": [
+        -0.022789061069,
+        -0.000546342228,
+        -0.003685466014
+      ],
+      "translation_delta": [
+        0.0,
+        -6.054e-09,
+        9.31e-10
+      ],
+      "translation_delta_norm": 6.125e-09,
+      "translation_zeroish": true
+    },
+    "right_pinky1": {
+      "parent_blender": "right_wrist",
+      "parent_glb": "right_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.222484409809,
+        0.095551341772,
+        0.304473727942,
+        0.921230912209
+      ],
+      "rotation_delta_xyzw": [
+        0.222484408014,
+        -0.095551341001,
+        -0.304473725485,
+        -0.921230904775
+      ],
+      "rotation_delta_rotvec": [
+        -0.457033069754,
+        0.19628396923,
+        0.62545758896
+      ],
+      "rotation_delta_angle_deg": 45.786599264392,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.080877482891,
+        -0.018849827349,
+        -0.038137089461
+      ],
+      "glb_rest_local_translation": [
+        -0.080877482891,
+        -0.018849827349,
+        -0.038137089461
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_pinky2": {
+      "parent_blender": "right_pinky1",
+      "parent_glb": "right_pinky1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.105956949294,
+        0.032578151673,
+        0.250213712454,
+        0.961823701859
+      ],
+      "rotation_delta_xyzw": [
+        0.105956952132,
+        -0.032578152546,
+        -0.250213719156,
+        -0.961823727623
+      ],
+      "rotation_delta_rotvec": [
+        -0.214652463857,
+        0.065998318856,
+        0.506894453144
+      ],
+      "rotation_delta_angle_deg": 31.765507975456,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.014281511307,
+        -0.000407151878,
+        -0.011710979044
+      ],
+      "glb_rest_local_translation": [
+        -0.014281491749,
+        -0.000407169107,
+        -0.011710957624
+      ],
+      "translation_delta": [
+        1.9558e-08,
+        -1.7229e-08,
+        2.142e-08
+      ],
+      "translation_delta_norm": 3.3737e-08,
+      "translation_zeroish": true
+    },
+    "right_pinky3": {
+      "parent_blender": "right_pinky2",
+      "parent_glb": "right_pinky2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.183734595776,
+        0.029988277704,
+        0.039502687752,
+        0.98172390461
+      ],
+      "rotation_delta_xyzw": [
+        0.183734597089,
+        -0.029988277918,
+        -0.039502688035,
+        -0.981723911626
+      ],
+      "rotation_delta_rotvec": [
+        -0.36972432195,
+        0.060344626953,
+        0.079490225468
+      ],
+      "rotation_delta_angle_deg": 21.941833325635,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.014561533928,
+        -0.000864036381,
+        -0.011355549097
+      ],
+      "glb_rest_local_translation": [
+        -0.01456150692,
+        -0.000863981433,
+        -0.011355537921
+      ],
+      "translation_delta": [
+        2.7008e-08,
+        5.4948e-08,
+        1.1176e-08
+      ],
+      "translation_delta_norm": 6.2239e-08,
+      "translation_zeroish": true
+    },
+    "right_ring1": {
+      "parent_blender": "right_wrist",
+      "parent_glb": "right_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.069666683674,
+        0.042158883065,
+        0.312083184719,
+        0.946558654308
+      ],
+      "rotation_delta_xyzw": [
+        0.069666683031,
+        -0.042158882676,
+        -0.312083181838,
+        -0.946558645569
+      ],
+      "rotation_delta_rotvec": [
+        -0.141869723192,
+        0.085852645125,
+        0.635528385938
+      ],
+      "rotation_delta_angle_deg": 37.63220751628,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.093837440014,
+        -0.01395405829,
+        -0.022812288254
+      ],
+      "glb_rest_local_translation": [
+        -0.093837440014,
+        -0.01395405829,
+        -0.022812288254
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_ring2": {
+      "parent_blender": "right_ring1",
+      "parent_glb": "right_ring1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.148568034172,
+        0.028348442167,
+        0.309236317873,
+        0.938880681992
+      ],
+      "rotation_delta_xyzw": [
+        0.148568024496,
+        -0.028348440321,
+        -0.309236297732,
+        -0.938880620842
+      ],
+      "rotation_delta_rotvec": [
+        -0.303341620887,
+        0.057880973148,
+        0.631389157321
+      ],
+      "rotation_delta_angle_deg": 40.27117384749,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.026728212833,
+        0.001656711102,
+        -0.005247697234
+      ],
+      "glb_rest_local_translation": [
+        -0.026728138328,
+        0.00165671017,
+        -0.005247695837
+      ],
+      "translation_delta": [
+        7.4506e-08,
+        -9.31e-10,
+        1.397e-09
+      ],
+      "translation_delta_norm": 7.4525e-08,
+      "translation_zeroish": true
+    },
+    "right_ring3": {
+      "parent_blender": "right_ring2",
+      "parent_glb": "right_ring2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.087372764945,
+        0.065530739725,
+        0.185219481587,
+        0.976609170437
+      ],
+      "rotation_delta_xyzw": [
+        0.087372764681,
+        -0.065530739527,
+        -0.185219481028,
+        -0.976609167486
+      ],
+      "rotation_delta_rotvec": [
+        -0.176120887461,
+        0.132093015982,
+        0.373354551533
+      ],
+      "rotation_delta_angle_deg": 24.833656052581,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.021861255169,
+        -0.00093524158,
+        -0.006977923214
+      ],
+      "glb_rest_local_translation": [
+        -0.021861251444,
+        -0.000935252523,
+        -0.006977920886
+      ],
+      "translation_delta": [
+        3.725e-09,
+        -1.0943e-08,
+        2.328e-09
+      ],
+      "translation_delta_norm": 1.1792e-08,
+      "translation_zeroish": true
+    },
+    "right_shoulder": {
+      "parent_blender": "right_collar",
+      "parent_glb": "right_collar",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.095603473485,
+        0.047853365541,
+        -0.020765565336
+      ],
+      "glb_rest_local_translation": [
+        -0.095603473485,
+        0.047853365541,
+        -0.020765565336
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_thumb1": {
+      "parent_blender": "right_wrist",
+      "parent_glb": "right_wrist",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.411280721426,
+        -0.133839920163,
+        0.044246219099,
+        0.900542795658
+      ],
+      "rotation_delta_xyzw": [
+        -0.411280719213,
+        0.133839919443,
+        -0.04424621886,
+        -0.900542790812
+      ],
+      "rotation_delta_rotvec": [
+        0.85096458475,
+        -0.276922856218,
+        0.091548092338
+      ],
+      "rotation_delta_angle_deg": 51.54098671839,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.040421366692,
+        -0.021088071167,
+        0.027382154018
+      ],
+      "glb_rest_local_translation": [
+        -0.040421366692,
+        -0.021088071167,
+        0.027382154018
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "right_thumb2": {
+      "parent_blender": "right_thumb1",
+      "parent_glb": "right_thumb1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        -0.247290015221,
+        -0.013138522394,
+        -0.026162227616,
+        0.96849912405
+      ],
+      "rotation_delta_xyzw": [
+        0.247290016724,
+        0.013138522474,
+        0.026162227775,
+        -0.968499129939
+      ],
+      "rotation_delta_rotvec": [
+        -0.499839599757,
+        -0.026556485788,
+        -0.052880895205
+      ],
+      "rotation_delta_angle_deg": 28.838694526167,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.016685307026,
+        0.000733613968,
+        0.023067735136
+      ],
+      "glb_rest_local_translation": [
+        -0.016685362905,
+        0.000733619789,
+        0.023067740723
+      ],
+      "translation_delta": [
+        -5.5879e-08,
+        5.821e-09,
+        5.588e-09
+      ],
+      "translation_delta_norm": 5.6459e-08,
+      "translation_zeroish": true
+    },
+    "right_thumb3": {
+      "parent_blender": "right_thumb2",
+      "parent_glb": "right_thumb2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.263716161251,
+        -0.022631801665,
+        0.13657464087,
+        0.954614579678
+      ],
+      "rotation_delta_xyzw": [
+        -0.263716155922,
+        0.022631801208,
+        -0.13657463811,
+        -0.954614560388
+      ],
+      "rotation_delta_rotvec": [
+        0.535559293274,
+        -0.045961050122,
+        0.277358117897
+      ],
+      "rotation_delta_angle_deg": 34.656307919299,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        -0.01978713274,
+        -0.005621157587,
+        0.013986073434
+      ],
+      "glb_rest_local_translation": [
+        -0.019787123427,
+        -0.005621143151,
+        0.013986087404
+      ],
+      "translation_delta": [
+        9.313e-09,
+        1.4435e-08,
+        1.397e-08
+      ],
+      "translation_delta_norm": 2.2142e-08,
+      "translation_zeroish": true
+    },
+    "right_wrist": {
+      "parent_blender": "right_elbow",
+      "parent_glb": "right_elbow",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.228114783764,
+        0.003353998065,
+        -0.00475551188
+      ],
+      "glb_rest_local_translation": [
+        -0.228114783764,
+        0.003353998065,
+        -0.00475551188
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "root": {
+      "parent_blender": null,
+      "parent_glb": null,
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.707106769085,
+        0.0,
+        0.0,
+        0.707106769085
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.707106781187,
+        0.0,
+        0.0,
+        -0.707106781187
+      ],
+      "rotation_delta_rotvec": [
+        -1.570796326795,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 90.0,
+      "rotation_identityish": false,
+      "blender_rest_local_translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "glb_rest_local_translation": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "spine1": {
+      "parent_blender": "pelvis",
+      "parent_glb": "pelvis",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.005460464396,
+        0.102212399244,
+        -0.026461254805
+      ],
+      "glb_rest_local_translation": [
+        -0.005460464396,
+        0.102212399244,
+        -0.026461254805
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "spine2": {
+      "parent_blender": "spine1",
+      "parent_glb": "spine1",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        0.010170944035,
+        0.11716581136,
+        -0.010275910608
+      ],
+      "glb_rest_local_translation": [
+        0.010170944035,
+        0.11716581136,
+        -0.010275910608
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    },
+    "spine3": {
+      "parent_blender": "spine2",
+      "parent_glb": "spine2",
+      "parent_match": true,
+      "blender_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "glb_rest_local_quaternion_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "rotation_delta_xyzw": [
+        0.0,
+        0.0,
+        0.0,
+        -1.0
+      ],
+      "rotation_delta_rotvec": [
+        -0.0,
+        -0.0,
+        -0.0
+      ],
+      "rotation_delta_angle_deg": 0.0,
+      "rotation_identityish": true,
+      "blender_rest_local_translation": [
+        -0.005562553182,
+        0.043824531138,
+        0.032045446336
+      ],
+      "glb_rest_local_translation": [
+        -0.005562553182,
+        0.043824531138,
+        0.032045446336
+      ],
+      "translation_delta": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "translation_delta_norm": 0.0,
+      "translation_zeroish": true
+    }
+  },
+  "summary": {
+    "non_identity_rotation_bones": [
+      "left_index1",
+      "left_index2",
+      "left_index3",
+      "left_middle1",
+      "left_middle2",
+      "left_middle3",
+      "left_pinky1",
+      "left_pinky2",
+      "left_pinky3",
+      "left_ring1",
+      "left_ring2",
+      "left_ring3",
+      "left_thumb1",
+      "left_thumb2",
+      "left_thumb3",
+      "right_index1",
+      "right_index2",
+      "right_index3",
+      "right_middle1",
+      "right_middle2",
+      "right_middle3",
+      "right_pinky1",
+      "right_pinky2",
+      "right_pinky3",
+      "right_ring1",
+      "right_ring2",
+      "right_ring3",
+      "right_thumb1",
+      "right_thumb2",
+      "right_thumb3",
+      "root"
+    ],
+    "non_zero_translation_bones": [],
+    "largest_rotation_delta_bones": [
+      {
+        "bone": "root",
+        "rotation_delta_angle_deg": 90.00000000000001,
+        "translation_delta_norm": 0.0,
+        "rotation_delta_xyzw": [
+          0.707106781187,
+          0.0,
+          0.0,
+          -0.707106781187
+        ],
+        "translation_delta": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "bone": "left_thumb1",
+        "rotation_delta_angle_deg": 51.540986718389924,
+        "translation_delta_norm": 0.0,
+        "rotation_delta_xyzw": [
+          -0.411280719213,
+          -0.133839919443,
+          0.04424621886,
+          -0.900542790812
+        ],
+        "translation_delta": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "bone": "right_thumb1",
+        "rotation_delta_angle_deg": 51.540986718389924,
+        "translation_delta_norm": 0.0,
+        "rotation_delta_xyzw": [
+          -0.411280719213,
+          0.133839919443,
+          -0.04424621886,
+          -0.900542790812
+        ],
+        "translation_delta": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "bone": "left_pinky1",
+        "rotation_delta_angle_deg": 45.786599264392066,
+        "translation_delta_norm": 0.0,
+        "rotation_delta_xyzw": [
+          0.222484408014,
+          0.095551341001,
+          0.304473725485,
+          -0.921230904775
+        ],
+        "translation_delta": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "bone": "right_pinky1",
+        "rotation_delta_angle_deg": 45.786599264392066,
+        "translation_delta_norm": 0.0,
+        "rotation_delta_xyzw": [
+          0.222484408014,
+          -0.095551341001,
+          -0.304473725485,
+          -0.921230904775
+        ],
+        "translation_delta": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "bone": "left_index2",
+        "rotation_delta_angle_deg": 43.93741275546347,
+        "translation_delta_norm": 1.32433980056244e-07,
+        "rotation_delta_xyzw": [
+          -0.053082347331,
+          0.03219035293,
+          0.368913206358,
+          -0.927388317672
+        ],
+        "translation_delta": [
+          1.32248e-07,
+          -6.985e-09,
+          -6.98e-10
+        ]
+      },
+      {
+        "bone": "right_index2",
+        "rotation_delta_angle_deg": 43.93741275546347,
+        "translation_delta_norm": 3.739596465102121e-08,
+        "rotation_delta_xyzw": [
+          -0.053082347331,
+          -0.03219035293,
+          -0.368913206358,
+          -0.927388317672
+        ],
+        "translation_delta": [
+          -3.7253e-08,
+          -2.33e-10,
+          -3.26e-09
+        ]
+      },
+      {
+        "bone": "left_middle2",
+        "rotation_delta_angle_deg": 41.33741408514605,
+        "translation_delta_norm": 6.680292173295238e-08,
+        "rotation_delta_xyzw": [
+          0.070301034257,
+          -0.027025686846,
+          0.344834569551,
+          -0.935636946938
+        ],
+        "translation_delta": [
+          -6.1467e-08,
+          2.5146e-08,
+          -7.218e-09
+        ]
+      },
+      {
+        "bone": "right_middle2",
+        "rotation_delta_angle_deg": 41.33741408514605,
+        "translation_delta_norm": 4.765298773594647e-08,
+        "rotation_delta_xyzw": [
+          0.070301034257,
+          0.027025686846,
+          -0.344834569551,
+          -0.935636946938
+        ],
+        "translation_delta": [
+          4.2841e-08,
+          2.0489e-08,
+          -3.958e-09
+        ]
+      },
+      {
+        "bone": "left_ring2",
+        "rotation_delta_angle_deg": 40.27117384748996,
+        "translation_delta_norm": 5.699359357652903e-08,
+        "rotation_delta_xyzw": [
+          0.148568024496,
+          0.028348440321,
+          0.309236297732,
+          -0.938880620842
+        ],
+        "translation_delta": [
+          -5.5879e-08,
+          -9.31e-10,
+          -1.1176e-08
+        ]
+      }
+    ],
+    "largest_translation_delta_bones": [
+      {
+        "bone": "left_index2",
+        "rotation_delta_angle_deg": 43.93741275546347,
+        "translation_delta_norm": 1.32433980056244e-07,
+        "rotation_delta_xyzw": [
+          -0.053082347331,
+          0.03219035293,
+          0.368913206358,
+          -0.927388317672
+        ],
+        "translation_delta": [
+          1.32248e-07,
+          -6.985e-09,
+          -6.98e-10
+        ]
+      },
+      {
+        "bone": "left_index3",
+        "rotation_delta_angle_deg": 13.19970983767281,
+        "translation_delta_norm": 1.1287226417837366e-07,
+        "rotation_delta_xyzw": [
+          0.048089982899,
+          0.045357381991,
+          0.094021443278,
+          -0.993373056635
+        ],
+        "translation_delta": [
+          -5.588e-09,
+          -1.1269e-07,
+          3.143e-09
+        ]
+      },
+      {
+        "bone": "left_ring3",
+        "rotation_delta_angle_deg": 24.833656052580714,
+        "translation_delta_norm": 9.19975717558076e-08,
+        "rotation_delta_xyzw": [
+          0.087372764681,
+          0.065530739527,
+          0.185219481028,
+          -0.976609167486
+        ],
+        "translation_delta": [
+          -1.8626e-08,
+          -8.8243e-08,
+          -1.8161e-08
+        ]
+      },
+      {
+        "bone": "right_ring2",
+        "rotation_delta_angle_deg": 40.27117384748996,
+        "translation_delta_norm": 7.45247210580103e-08,
+        "rotation_delta_xyzw": [
+          0.148568024496,
+          -0.028348440321,
+          -0.309236297732,
+          -0.938880620842
+        ],
+        "translation_delta": [
+          7.4506e-08,
+          -9.31e-10,
+          1.397e-09
+        ]
+      },
+      {
+        "bone": "left_middle2",
+        "rotation_delta_angle_deg": 41.33741408514605,
+        "translation_delta_norm": 6.680292173295238e-08,
+        "rotation_delta_xyzw": [
+          0.070301034257,
+          -0.027025686846,
+          0.344834569551,
+          -0.935636946938
+        ],
+        "translation_delta": [
+          -6.1467e-08,
+          2.5146e-08,
+          -7.218e-09
+        ]
+      },
+      {
+        "bone": "right_pinky3",
+        "rotation_delta_angle_deg": 21.941833325635137,
+        "translation_delta_norm": 6.223855334000149e-08,
+        "rotation_delta_xyzw": [
+          0.183734597089,
+          -0.029988277918,
+          -0.039502688035,
+          -0.981723911626
+        ],
+        "translation_delta": [
+          2.7008e-08,
+          5.4948e-08,
+          1.1176e-08
+        ]
+      },
+      {
+        "bone": "left_thumb2",
+        "rotation_delta_angle_deg": 28.838694526167437,
+        "translation_delta_norm": 5.983702243942399e-08,
+        "rotation_delta_xyzw": [
+          0.247290016724,
+          -0.013138522474,
+          -0.026162227775,
+          -0.968499129939
+        ],
+        "translation_delta": [
+          5.9605e-08,
+          -3.725e-09,
+          -3.725e-09
+        ]
+      },
+      {
+        "bone": "left_ring2",
+        "rotation_delta_angle_deg": 40.27117384748996,
+        "translation_delta_norm": 5.699359357652903e-08,
+        "rotation_delta_xyzw": [
+          0.148568024496,
+          0.028348440321,
+          0.309236297732,
+          -0.938880620842
+        ],
+        "translation_delta": [
+          -5.5879e-08,
+          -9.31e-10,
+          -1.1176e-08
+        ]
+      },
+      {
+        "bone": "right_thumb2",
+        "rotation_delta_angle_deg": 28.838694526167437,
+        "translation_delta_norm": 5.645891069809979e-08,
+        "rotation_delta_xyzw": [
+          0.247290016724,
+          0.013138522474,
+          0.026162227775,
+          -0.968499129939
+        ],
+        "translation_delta": [
+          -5.5879e-08,
+          5.821e-09,
+          5.588e-09
+        ]
+      },
+      {
+        "bone": "right_middle2",
+        "rotation_delta_angle_deg": 41.33741408514605,
+        "translation_delta_norm": 4.765298773594647e-08,
+        "rotation_delta_xyzw": [
+          0.070301034257,
+          0.027025686846,
+          -0.344834569551,
+          -0.935636946938
+        ],
+        "translation_delta": [
+          4.2841e-08,
+          2.0489e-08,
+          -3.958e-09
+        ]
+      }
+    ]
+  }
+}
