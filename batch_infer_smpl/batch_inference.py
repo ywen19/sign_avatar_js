@@ -3,6 +3,8 @@ from pathlib import Path
 import json
 import cv2
 import subprocess
+import shutil
+import time
 
 
 def get_all_subfolder_names(vocab_root):
@@ -92,6 +94,7 @@ def process_file(vocab_root, subfolder_name, file_name, frame_output_dir):
         reset_frame_output_dir(frame_output_dir)
         raise
 
+    time.sleep(0.2)
     reset_frame_output_dir(frame_output_dir)
 
 
@@ -137,7 +140,7 @@ def get_resume_info(progress_file):
     return completed_subfolders, last_subfolder, last_processed_files
 
 
-def process_subfolder(vocab_root, progress_file, missing_file, subfolder_name):
+def process_subfolder(vocab_root, progress_file, missing_file, subfolder_name, frame_output_dir):
     print(f"Processing: {subfolder_name}")
     all_files = get_all_files_in_subfolder(vocab_root, subfolder_name)
     processed_files = []
@@ -188,7 +191,7 @@ def main():
 
     completed_subfolders, last_subfolder, last_processed_files = get_resume_info(args.progress_file)
 
-    for subfolder_name in all_vocabs[:20]:
+    for subfolder_name in all_vocabs[:3]:
         if subfolder_name in completed_subfolders:
             print(f"Skipping completed subfolder: {subfolder_name}")
             continue
@@ -203,7 +206,8 @@ def main():
             args.vocab_root,
             args.progress_file,
             args.missing_file,
-            subfolder_name
+            subfolder_name,
+            output_root,
         )
 
 
