@@ -1,0 +1,399 @@
+{
+  "root_path": "../demo/vocabs",
+  "mode": "live",
+  "duplicate_groups": {
+    "hello_how_are_you": [
+      "hello_how_are_you",
+      "hello_how_are_you_1"
+    ],
+    "again_please_slowly": [
+      "again_please_slowly",
+      "again_please_slowly_1"
+    ],
+    "are_you_happy_not_happy": [
+      "are_you_happy_not_happy",
+      "are_you_happy_not_happy_1"
+    ],
+    "we": [
+      "we",
+      "we_1"
+    ],
+    "wont": [
+      "wont",
+      "wont_1"
+    ],
+    "youre_welcome": [
+      "youre_welcome",
+      "youre_welcome_1"
+    ],
+    "cant": [
+      "cant",
+      "cant_1"
+    ],
+    "dont_know": [
+      "dont_know",
+      "dont_know_1"
+    ],
+    "birds_eye": [
+      "birds_eye",
+      "birds_eye_1"
+    ],
+    "im_learning_to_sign": [
+      "im_learning_to_sign",
+      "im_learning_to_sign_1"
+    ],
+    "peoples_republic_of_china": [
+      "peoples_republic_of_china",
+      "peoples_republic_of_china_1"
+    ],
+    "im_ok": [
+      "im_ok",
+      "im_ok_1"
+    ],
+    "change_money": [
+      "change_money",
+      "change_money_1"
+    ],
+    "change_clothes": [
+      "change_clothes",
+      "change_clothes_1"
+    ],
+    "supermarket": [
+      "supermarket",
+      "supermarket_1"
+    ],
+    "own": [
+      "own",
+      "own_1"
+    ],
+    "yours": [
+      "yours",
+      "yours_1"
+    ],
+    "thinking": [
+      "thinking",
+      "thinking_1",
+      "thinking_2"
+    ],
+    "end_of_corridor": [
+      "end_of_corridor",
+      "end_of_corridor_1"
+    ],
+    "term": [
+      "term",
+      "term_1"
+    ],
+    "word": [
+      "word",
+      "word_1"
+    ],
+    "would_you_like_tea": [
+      "would_you_like_tea",
+      "would_you_like_tea_1"
+    ],
+    "do_you_need_the_toilet": [
+      "do_you_need_the_toilet",
+      "do_you_need_the_toilet_1"
+    ],
+    "are_you_hungry": [
+      "are_you_hungry",
+      "are_you_hungry_1"
+    ],
+    "balanced_forces": [
+      "balanced_forces",
+      "balanced_forces_1"
+    ],
+    "chemical_equation": [
+      "chemical_equation",
+      "chemical_equation_1"
+    ],
+    "boiling_point": [
+      "boiling_point",
+      "boiling_point_1"
+    ],
+    "optical_fibre": [
+      "optical_fibre",
+      "optical_fibre_1"
+    ],
+    "alternating_current": [
+      "alternating_current",
+      "alternating_current_1"
+    ],
+    "magnetic_field": [
+      "magnetic_field",
+      "magnetic_field_1"
+    ],
+    "renewable_energy": [
+      "renewable_energy",
+      "renewable_energy_1"
+    ],
+    "chemical_reaction": [
+      "chemical_reaction",
+      "chemical_reaction_1"
+    ],
+    "square_root": [
+      "square_root",
+      "square_root_1"
+    ],
+    "profound_hearing": [
+      "profound_hearing",
+      "profound_hearing_1"
+    ],
+    "are_you_deaf_or_hard_of_hearing": [
+      "are_you_deaf_or_hard_of_hearing",
+      "are_you_deaf_or_hard_of_hearing_1"
+    ],
+    "thats_right": [
+      "thats_right",
+      "thats_right_1"
+    ],
+    "would_you_like_a_drink": [
+      "would_you_like_a_drink",
+      "would_you_like_a_drink_1"
+    ],
+    "i_dont_know": [
+      "i_dont_know",
+      "i_dont_know_1"
+    ],
+    "house": [
+      "house",
+      "house_1"
+    ],
+    "difficult_problem": [
+      "difficult_problem",
+      "difficult_problem_1"
+    ],
+    "sick_poorly": [
+      "sick_poorly",
+      "sick_poorly_1"
+    ],
+    "can_i_help_you": [
+      "can_i_help_you",
+      "can_i_help_you_1"
+    ],
+    "i_dont_understand_again_please": [
+      "i_dont_understand_again_please",
+      "i_dont_understand_again_please_1"
+    ],
+    "what_time": [
+      "what_time",
+      "what_time_1"
+    ],
+    "support_a_team": [
+      "support_a_team",
+      "support_a_team_1"
+    ],
+    "home": [
+      "home",
+      "home_1"
+    ],
+    "what_about_you_your_response": [
+      "what_about_you_your_response",
+      "what_about_you_your_response_1"
+    ],
+    "clothes": [
+      "clothes",
+      "clothes_1"
+    ],
+    "do_you_have_gloves": [
+      "do_you_have_gloves",
+      "do_you_have_gloves_1"
+    ],
+    "what_did_you_buy": [
+      "what_did_you_buy",
+      "what_did_you_buy_1"
+    ],
+    "i_dont_understand": [
+      "i_dont_understand",
+      "i_dont_understand_1"
+    ],
+    "how_are_you": [
+      "how_are_you",
+      "how_are_you_1"
+    ],
+    "water": [
+      "water",
+      "water_1"
+    ],
+    "support": [
+      "support",
+      "support_1"
+    ],
+    "sick": [
+      "sick",
+      "sick_1",
+      "sick_2"
+    ],
+    "nobody": [
+      "nobody",
+      "nobody_1"
+    ],
+    "whats_your_name": [
+      "whats_your_name",
+      "whats_your_name_1"
+    ],
+    "tap_you_hello": [
+      "tap_you_hello",
+      "tap_you_hello_1"
+    ],
+    "nothing": [
+      "nothing",
+      "nothing_1"
+    ],
+    "what_is_it": [
+      "what_is_it",
+      "what_is_it_1"
+    ],
+    "ac": [
+      "ac",
+      "ac_1"
+    ],
+    "fade_in": [
+      "fade_in",
+      "fade_in_1"
+    ],
+    "would_you_like_a_snack": [
+      "would_you_like_a_snack",
+      "would_you_like_a_snack_1"
+    ],
+    "let_me_see": [
+      "let_me_see",
+      "let_me_see_1"
+    ],
+    "tropic_of_cancer_area": [
+      "tropic_of_cancer_area",
+      "tropic_of_cancer_area_1"
+    ],
+    "who_lives_in_your_house": [
+      "who_lives_in_your_house",
+      "who_lives_in_your_house_1"
+    ],
+    "how_are_you_today": [
+      "how_are_you_today",
+      "how_are_you_today_1"
+    ],
+    "what_is_your_gender": [
+      "what_is_your_gender",
+      "what_is_your_gender_1"
+    ],
+    "tropic_of_cancer_latitude": [
+      "tropic_of_cancer_latitude",
+      "tropic_of_cancer_latitude_1"
+    ],
+    "im_in_pain": [
+      "im_in_pain",
+      "im_in_pain_1"
+    ],
+    "hello_my_name_is": [
+      "hello_my_name_is",
+      "hello_my_name_is_1"
+    ],
+    "whats_wrong": [
+      "whats_wrong",
+      "whats_wrong_1"
+    ],
+    "im_good": [
+      "im_good",
+      "im_good_1"
+    ],
+    "dont_understand": [
+      "dont_understand",
+      "dont_understand_1"
+    ],
+    "are_you_happy_today": [
+      "are_you_happy_today",
+      "are_you_happy_today_1"
+    ],
+    "soap": [
+      "soap",
+      "soap_1"
+    ],
+    "wonder": [
+      "wonder",
+      "wonder_1"
+    ],
+    "im_happy": [
+      "im_happy",
+      "im_happy_1"
+    ],
+    "are_you_worried": [
+      "are_you_worried",
+      "are_you_worried_1"
+    ],
+    "its_time_to_brush_your_teeth": [
+      "its_time_to_brush_your_teeth",
+      "its_time_to_brush_your_teeth_1"
+    ],
+    "ok": [
+      "ok",
+      "ok_1"
+    ],
+    "are_you_ok": [
+      "are_you_ok",
+      "are_you_ok_1"
+    ],
+    "contrast": [
+      "contrast",
+      "contrast_1"
+    ],
+    "cpu": [
+      "cpu",
+      "cpu_1"
+    ],
+    "dc": [
+      "dc",
+      "dc_1"
+    ],
+    "docudrama": [
+      "docudrama",
+      "docudrama_1"
+    ],
+    "dprk": [
+      "dprk",
+      "dprk_1"
+    ],
+    "element": [
+      "element",
+      "element_1"
+    ],
+    "id": [
+      "id",
+      "id_1"
+    ],
+    "jump": [
+      "jump",
+      "jump_1"
+    ],
+    "logic": [
+      "logic",
+      "logic_0",
+      "logic_1"
+    ],
+    "menu": [
+      "menu",
+      "menu_1",
+      "menu_2"
+    ],
+    "pa": [
+      "pa",
+      "pa_1"
+    ],
+    "read_write_head": [
+      "read_write_head",
+      "read_write_head_1"
+    ],
+    "us": [
+      "us",
+      "us_1"
+    ],
+    "usa": [
+      "usa",
+      "usa_1"
+    ],
+    "user": [
+      "user",
+      "user_1",
+      "user_2"
+    ]
+  }
+}
