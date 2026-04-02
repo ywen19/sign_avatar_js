@@ -79,7 +79,7 @@
     }
 
     .sidebar {
-      width: 300px;
+      width: 340px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -89,7 +89,7 @@
       background: #fafafa;
       border: 1px solid #e5e7eb;
       border-radius: 18px;
-      padding: 16px;
+      padding: 14px;
     }
 
     .title {
@@ -101,7 +101,7 @@
     }
 
     .camera {
-      height: 280px;
+      height: 180px;
       border-radius: 14px;
       background: #111827;
       display: flex;
@@ -125,6 +125,37 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       margin-top: 12px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      align-items: stretch;
+    }
+
+    #text-input {
+      flex: 1;
+      height: 70px;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 15px;
+      outline: none;
+      background: white;
+      color: #1f2937;
+    }
+
+    #send-text-btn {
+      height: 70px;
+      min-width: 80px;
+      border: 1px solid #d1d5db;
+      border-radius: 14px;
+      padding: 0 18px;
+      font-size: 15px;
+      cursor: pointer;
+      background: white;
+      color: #374151;
     }
 
     button {
@@ -161,13 +192,13 @@
 
     #debug-log {
       font-family: monospace;
-      font-size: 12px;
+      font-size: 11px;
       white-space: pre-wrap;
-      max-height: 150px;
+      max-height: 90px;
       overflow: auto;
       background: #fff;
       border-radius: 10px;
-      padding: 10px;
+      padding: 8px;
       border: 1px solid #e5e7eb;
     }
   </style>
@@ -196,6 +227,11 @@
           <div class="buttons">
             <button id="start-camera-btn" class="primary">Start</button>
             <button id="stop-camera-btn" class="secondary">End</button>
+          </div>
+
+          <div class="input-row">
+            <input id="text-input" type="text" placeholder="Enter text to send..." autocomplete="off" />
+            <button id="send-text-btn">Send</button>
           </div>
         </div>
 
@@ -264,6 +300,11 @@
   <script type="module" src="/camera.js"></script>
   <script>
     logDebug("camera.js module tag added");
+  </script>
+
+  <script type="module" src="/text_input.js"></script>
+  <script>
+    logDebug("text_input.js module tag added");
   </script>
 
   <script type="module" src="/avatar.js"></script>

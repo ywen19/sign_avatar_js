@@ -61,6 +61,23 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json({"error": str(e)}, status=500)
             return
 
+        if parsed.path == "/api/text":
+            try:
+                content_length = int(self.headers.get("Content-Length", 0))
+                raw_body = self.rfile.read(content_length)
+                data = json.loads(raw_body.decode("utf-8"))
+
+                user_text = data.get("text", "").strip()
+                print("[TEXT INPUT]", user_text)
+
+                self._send_json({
+                    "ok": True,
+                    "received_text": user_text
+                }, status=200)
+            except Exception as e:
+                self._send_json({"error": str(e)}, status=500)
+            return
+
         if parsed.path == "/__shutdown__":
             self.send_response(200)
             self.end_headers()
