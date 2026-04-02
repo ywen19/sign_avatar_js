@@ -134,7 +134,52 @@ class SmolLMService:
         with torch.no_grad():
             generated_ids = self.model.generate(
                 **model_inputs,
-                max_new_tokens=6,
+                max_new_tokens=500,
+                do_sample=False,
+                pad_token_id=self.tokenizer.eos_token_id,
+            )
+
+        output_ids = generated_ids[0][len(model_inputs.input_ids[0]):]
+        result = self.tokenizer.decode(output_ids, skip_special_tokens=True).strip().upper()
+        return result
+
+    def classify_context_need(self, user_prompt: str) -> str:
+        if self.model is None or self.tokenizer is None:
+            raise RuntimeError("Model not loaded. Call load_model() first.")
+
+        messages = [
+            {
+                "role": "system",
+                "content": (
+                    "/no_think "
+                    "You are a classifier. "
+                    "Classify the user's message into exactly one label: "
+                    "SELF_CONTAINED, RECENT_CONTEXT, or ARCHIVE_CONTEXT. "
+                    "SELF_CONTAINED means the message can be answered without prior conversation. "
+                    "RECENT_CONTEXT means the message depends on recent chat context such as pronouns or follow-ups. "
+                    "ARCHIVE_CONTEXT means the message refers to older conversation that may not be in recent context, "
+                    "such as 'earlier', 'before', 'previously', or past recommendations. "
+                    "Reply with only one label."
+                ),
+            },
+            {
+                "role": "user",
+                "content": user_prompt,
+            },
+        ]
+
+        text = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True
+        )
+
+        model_inputs = self.tokenizer([text], return_tensors="pt").to(self.model.device)
+
+        with torch.no_grad():
+            generated_ids = self.model.generate(
+                **model_inputs,
+                max_new_tokens=500, #todo: is 200 suitable?
                 do_sample=False,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
@@ -167,7 +212,7 @@ class SmolLMService:
         with torch.no_grad():
             generated_ids = self.model.generate(
                 **model_inputs,
-                max_new_tokens=32,
+                max_new_tokens=500,
                 do_sample=False,
                 pad_token_id=self.tokenizer.eos_token_id,
             )
@@ -194,6 +239,11 @@ def load_model():
 
 def get_response(user_prompt: str, conversation_history=None) -> str:
     return smollm_service.get_response(user_prompt, conversation_history=conversation_history)
+
+
+def classify_context_need(user_prompt: str) -> str:
+    return smollm_service.classify_context_need(user_prompt)
+
 
 def cleanup():
     smollm_service.cleanup()

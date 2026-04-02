@@ -7,14 +7,23 @@ import os
 import json
 from pathlib import Path
 from urllib.parse import urlparse
+import signal
+import atexit
 
 from switch_anim import TestAnimLoader
-from language_utils.smollm_service import load_model, get_response
+from language_utils.smollm_service import load_model, get_response, classify_context_need
+from language_utils.chat_history_store import ChatHistoryStore
+
 
 PORT = 8000
 httpd = None
 latest_llm_answer = ""
 conversation_history = []
+
+MAX_HISTORY_MESSAGES = 3
+TRIM_TO_MESSAGES = 5
+
+history_store = ChatHistoryStore("chat_history.jsonl")
 
 loader = TestAnimLoader(
     default_json="Dancing_mixamo_com_frames.json"
@@ -79,25 +88,63 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
 
                 global latest_llm_answer, conversation_history
 
-                latest_llm_answer = get_response(
-                    user_text,
-                    conversation_history=conversation_history[-10:]
-                )
+                context_type = classify_context_need(user_text)
+                print("[CONTEXT TYPE]", context_type)
 
-                conversation_history.append({
+                if context_type == "SELF_CONTAINED":
+                    # no history needed
+                    latest_llm_answer = get_response(user_text)
+
+                elif context_type == "RECENT_CONTEXT":
+                    # use recent in-memory history
+                    latest_llm_answer = get_response(
+                        user_text,
+                        conversation_history=conversation_history[-10:]
+                    )
+
+                elif context_type == "ARCHIVE_CONTEXT":
+                    archived_messages = history_store.search_messages(
+                        user_text,
+                        limit=6
+                    )
+
+                    combined_history = archived_messages + conversation_history[-10:]
+
+                    latest_llm_answer = get_response(
+                        user_text,
+                        conversation_history=combined_history
+                    )
+
+                else:
+                    # fallback safety
+                    latest_llm_answer = get_response(
+                        user_text,
+                        conversation_history=conversation_history[-10:]
+                    )
+
+                user_message = {
                     "role": "user",
                     "content": user_text
-                })
-                conversation_history.append({
+                }
+                assistant_message = {
                     "role": "assistant",
                     "content": latest_llm_answer
-                })
+                }
+
+                conversation_history.append(user_message)
+                conversation_history.append(assistant_message)
+
+                history_store.append_messages([user_message, assistant_message])
+
+                if len(conversation_history) > MAX_HISTORY_MESSAGES:
+                    conversation_history = conversation_history[-TRIM_TO_MESSAGES:]
 
                 self._send_json({
                     "ok": True,
                     "received_text": user_text,
                     "answer_text": latest_llm_answer
                 }, status=200)
+
             except Exception as e:
                 self._send_json({"error": str(e)}, status=500)
             return
@@ -114,9 +161,33 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(b"not found")
 
 
+def cleanup_app_resources():
+    try:
+        history_store.delete_file()
+        print("Deleted chat history JSONL.")
+    except Exception as e:
+        print("Failed to delete chat history JSONL:", e)
+
+def handle_exit_signal(signum, frame):
+    global httpd
+    print(f"Received signal {signum}. Shutting down app...")
+
+    cleanup_app_resources()
+
+    if httpd is not None:
+        try:
+            httpd.shutdown()
+            httpd.server_close()
+        except Exception as e:
+            print("Error while shutting down server:", e)
+
+    os._exit(0)
+
 def shutdown_app():
     global httpd
     print("Browser page closed. Shutting down app...")
+
+    cleanup_app_resources()
 
     if httpd is not None:
         try:
@@ -133,6 +204,10 @@ def main():
     global httpd
 
     load_model()
+
+    atexit.register(cleanup_app_resources)
+    signal.signal(signal.SIGINT, handle_exit_signal)   # Ctrl+C
+    signal.signal(signal.SIGTERM, handle_exit_signal)
 
     base_dir = Path(__file__).resolve().parent
     index_file = base_dir / "templates" / "index.html"
