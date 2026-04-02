@@ -1,6 +1,7 @@
 const textInput = document.getElementById("text-input");
 const sendTextBtn = document.getElementById("send-text-btn");
 const cameraStatus = document.getElementById("camera-status");
+const subtitleOutput = document.getElementById("subtitle-output");
 
 function setStatus(message) {
   if (cameraStatus) {
@@ -34,7 +35,12 @@ async function handleTextSubmit() {
     setStatus("Sending text...");
     const result = await sendTextToBackend(text);
     console.log("[TEXT_INPUT] backend response:", result);
-    setStatus("Text sent: " + text);
+
+    if (subtitleOutput && result.answer_text) {
+      subtitleOutput.textContent = result.answer_text;
+    }
+
+    setStatus("SmolLM answer received");
     textInput.value = "";
   } catch (error) {
     console.error("[TEXT_INPUT] error:", error);

@@ -9,9 +9,12 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from switch_anim import TestAnimLoader
+from language_utils.smollm_service import load_model, get_response
 
 PORT = 8000
 httpd = None
+latest_llm_answer = ""
+conversation_history = []
 
 loader = TestAnimLoader(
     default_json="Dancing_mixamo_com_frames.json"
@@ -68,11 +71,32 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
                 data = json.loads(raw_body.decode("utf-8"))
 
                 user_text = data.get("text", "").strip()
+                if not user_text:
+                    self._send_json({"error": "Empty text input"}, status=400)
+                    return
+
                 print("[TEXT INPUT]", user_text)
+
+                global latest_llm_answer, conversation_history
+
+                latest_llm_answer = get_response(
+                    user_text,
+                    conversation_history=conversation_history[-10:]
+                )
+
+                conversation_history.append({
+                    "role": "user",
+                    "content": user_text
+                })
+                conversation_history.append({
+                    "role": "assistant",
+                    "content": latest_llm_answer
+                })
 
                 self._send_json({
                     "ok": True,
-                    "received_text": user_text
+                    "received_text": user_text,
+                    "answer_text": latest_llm_answer
                 }, status=200)
             except Exception as e:
                 self._send_json({"error": str(e)}, status=500)
@@ -107,6 +131,8 @@ def shutdown_app():
 
 def main():
     global httpd
+
+    load_model()
 
     base_dir = Path(__file__).resolve().parent
     index_file = base_dir / "templates" / "index.html"
