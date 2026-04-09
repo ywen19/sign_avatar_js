@@ -37,6 +37,12 @@ else
     echo "nvidia-smi not found"
 fi
 
+echo "Installing spaCy..."
+pip install -U spacy
+
+echo "Installing contractions..."
+pip install -U contractions
+
 echo "Verifying Python packages..."
 python - <<'PY'
 import torch

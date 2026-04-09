@@ -11,8 +11,7 @@ import signal
 import atexit
 
 from switch_anim import TestAnimLoader
-from language_utils.smollm_service import load_model, get_response, classify_context_need
-from language_utils.chat_history_store import ChatHistoryStore
+from language_utils import *
 
 
 PORT = 8000
@@ -20,8 +19,8 @@ httpd = None
 latest_llm_answer = ""
 conversation_history = []
 
-MAX_HISTORY_MESSAGES = 3
-TRIM_TO_MESSAGES = 5
+MAX_HISTORY_MESSAGES = 15
+TRIM_TO_MESSAGES = 6
 
 history_store = ChatHistoryStore("chat_history.jsonl")
 
@@ -121,7 +120,27 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
                         user_text,
                         conversation_history=conversation_history[-10:]
                     )
+                
+                # process the llm answers for displaying in the GUI
+                # break into sentences
+                sentences = break_into_sentences(latest_llm_answer)
+                print(sentences)
 
+                entities = []
+                for sentence in sentences:
+                    entities.extend(detect_entities(sentence))
+                print(entities)
+
+                norm_sentences = [normalize_sentence_for_match(sentence) for sentence in sentences]
+                print(norm_sentences)
+
+                tokenized_sentences = [tokenize_with_entities(sentence, entities) for sentence in sentences]
+                print(tokenized_sentences)
+
+                traced_tokens = [trace_tokens(sentence, entities) for sentence in tokenized_sentences]
+                print(traced_tokens)
+
+                # chat history management
                 user_message = {
                     "role": "user",
                     "content": user_text
@@ -204,7 +223,9 @@ def main():
     global httpd
 
     load_model()
-
+    load_text_analyzer()
+    load_vocab_tree("./vocabs/all_vocabs.json")
+    
     atexit.register(cleanup_app_resources)
     signal.signal(signal.SIGINT, handle_exit_signal)   # Ctrl+C
     signal.signal(signal.SIGTERM, handle_exit_signal)
