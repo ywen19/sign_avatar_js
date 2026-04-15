@@ -199,6 +199,11 @@ if __name__ == "__main__":
             "tokens": ["a", "lot", "bournemouth art museum"],
             "entities": ["bournemouth art museum"],
         },
+        {
+            "name": "checking if contain sentences",
+            "tokens": ["what", "would", "you", "like", "to", "eat", "today"],
+            "entities": [],
+        },
     ]
 
     for case in test_cases:
