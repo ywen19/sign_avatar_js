@@ -14,7 +14,6 @@ from .text_analyzer import (
     tokenize_with_entities
 )
 
-
 from .vocab_tree import (
     VocabTree,
     load_vocab_tree,
@@ -22,6 +21,8 @@ from .vocab_tree import (
     trace_tokens,
     load_vocab_json
 )
+
+from .number_normalization import normalize_numbers_in_sentence
 
 __all__ = [
     "SmolLMService",
@@ -41,5 +42,6 @@ __all__ = [
     "load_vocab_tree",
     "print_vocab_subtree",
     "trace_tokens",
-    "load_vocab_json"
+    "load_vocab_json",
+    "normalize_numbers_in_sentence"
 ]

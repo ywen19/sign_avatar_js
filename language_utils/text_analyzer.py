@@ -4,7 +4,6 @@ import subprocess
 import sys
 from typing import List
 
-import contractions
 import spacy
 
 

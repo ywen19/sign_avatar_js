@@ -43,6 +43,9 @@ pip install -U spacy
 echo "Installing contractions..."
 pip install -U contractions
 
+echo "Installing num2words..."
+pip install -U num2words
+
 echo "Verifying Python packages..."
 python - <<'PY'
 import torch

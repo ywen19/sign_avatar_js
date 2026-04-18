@@ -126,6 +126,10 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
                 sentences = break_into_sentences(latest_llm_answer)
                 print(sentences)
 
+                # convert number digits to words
+                # this is because our vocab do not support digit tracing
+                sentences = [normalize_numbers_in_sentence(sentence) for sentence in sentences]
+
                 entities = []
                 for sentence in sentences:
                     entities.extend(detect_entities(sentence))
