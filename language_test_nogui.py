@@ -1,6 +1,3 @@
-from pathlib import Path
-import contractions
-
 from language_utils import *
 
 MAX_HISTORY_MESSAGES = 15
@@ -15,7 +12,7 @@ def process_answer_text(answer_text: str):
         entities.extend(detect_entities(sentence))
 
     normalized_sentences = [
-        normalize_sentence_for_match(normalize_numbers_in_sentence(sentence))
+        normalize_sentence_for_match(sentence)
         for sentence in raw_sentences
     ]
 
@@ -66,7 +63,7 @@ def main():
     history_store = ChatHistoryStore("chat_history.jsonl")
 
     try:
-        print("Loading SmolLM, spaCy text analyzer, and vocab tree...")
+        print("Loading SmolLM, GLiNER text analyzer, and vocab tree...")
         load_model()
         load_text_analyzer()
         load_vocab_tree("./vocabs/all_vocabs.json")

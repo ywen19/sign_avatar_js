@@ -11,7 +11,8 @@ from .text_analyzer import (
     tokenize_plain,
     normalize_sentence_for_match,
     detect_entities,
-    tokenize_with_entities
+    tokenize_with_entities,
+    normalize_for_runtime_match
 )
 
 from .vocab_tree import (
@@ -21,8 +22,6 @@ from .vocab_tree import (
     trace_tokens,
     load_vocab_json
 )
-
-from .number_normalization import normalize_numbers_in_sentence
 
 from .gliner_service import (
     GLiNERService,
@@ -51,9 +50,9 @@ __all__ = [
     "print_vocab_subtree",
     "trace_tokens",
     "load_vocab_json",
-    "normalize_numbers_in_sentence",
     "GLiNERService",
     "load_gliner_model",
     "predict_entities",
-    "cleanup_gliner"
+    "cleanup_gliner",
+    "normalize_for_runtime_match"
 ]

@@ -1,6 +1,8 @@
 import json
 from typing import List
 
+from language_utils.number_normalization import normalize_numbers_in_sentence
+
 
 END = "__end__"
 
@@ -37,7 +39,6 @@ class VocabTree:
                 continue
 
             node = self.root
-
             for token in tokens:
                 if token not in node:
                     node[token] = {}
@@ -110,6 +111,108 @@ class VocabTree:
 
         return last_match
 
+    def _lookup_exact_phrase(self, text: str):
+        tokens = [token for token in text.lower().split() if token]
+        if not tokens:
+            return None
+
+        node = self.root
+        for token in tokens:
+            if token not in node:
+                return None
+            node = node[token]
+
+        if END in node:
+            return node[END]
+        return None
+
+    def _split_mixed_entity_chunk(self, text: str) -> List[str]:
+        parts = []
+        current = []
+        current_kind = None
+
+        def flush():
+            nonlocal current, current_kind
+            if current:
+                parts.append("".join(current))
+                current = []
+                current_kind = None
+
+        for ch in text:
+            if ch.isspace() or ch == "-":
+                flush()
+                continue
+
+            if ch.isdigit():
+                kind = "digit"
+            elif ch.isalpha():
+                kind = "alpha"
+            else:
+                flush()
+                continue
+
+            if current_kind is None:
+                current.append(ch)
+                current_kind = kind
+            elif current_kind == kind:
+                current.append(ch)
+            else:
+                flush()
+                current.append(ch)
+                current_kind = kind
+
+        flush()
+        return parts
+
+    def _number_piece_to_tokens(self, piece: str) -> List[str]:
+        if not piece:
+            return []
+
+        converted = normalize_numbers_in_sentence(piece).lower().strip()
+        if not converted:
+            return []
+
+        return [token for token in converted.split() if token]
+
+    def _trace_plain_tokens(self, tokens: List[str], allow_alpha_fallback: bool) -> List[str]:
+        results = []
+        i = 0
+
+        while i < len(tokens):
+            match = self.match_from(tokens, i, entity_set=set())
+
+            if match is not None:
+                results.append(match["vocab_key"])
+                i = match["end_idx"]
+                continue
+
+            current = tokens[i]
+
+            if current.isdigit():
+                number_tokens = self._number_piece_to_tokens(current)
+                if number_tokens:
+                    results.extend(self._trace_plain_tokens(number_tokens, allow_alpha_fallback=False))
+                i += 1
+                continue
+
+            if allow_alpha_fallback and current.isalpha():
+                results.extend(list(current.lower()))
+
+            i += 1
+
+        return results
+
+    def _trace_entity_chunk(self, chunk: str) -> List[str]:
+        whole_match = self._lookup_exact_phrase(chunk)
+        if whole_match is not None:
+            return [whole_match]
+
+        sub_tokens = self._split_mixed_entity_chunk(chunk)
+        if not sub_tokens:
+            return []
+
+        return self._trace_plain_tokens(sub_tokens, allow_alpha_fallback=True)
+
     def trace(self, tokens: List[str], entities: List[str]) -> List[str]:
         results = []
         entity_set = set(entities)
@@ -119,7 +222,7 @@ class VocabTree:
             current = tokens[i]
 
             if current in entity_set:
-                results.append(current)
+                results.extend(self._trace_entity_chunk(current))
                 i += 1
                 continue
 
@@ -128,8 +231,14 @@ class VocabTree:
             if match is not None:
                 results.append(match["vocab_key"])
                 i = match["end_idx"]
-            else:
-                i += 1
+                continue
+
+            if current.isdigit():
+                number_tokens = self._number_piece_to_tokens(current)
+                if number_tokens:
+                    results.extend(self._trace_plain_tokens(number_tokens, allow_alpha_fallback=False))
+
+            i += 1
 
         return results
 
@@ -148,6 +257,7 @@ def print_vocab_subtree(prefix=None) -> None:
 
 def trace_tokens(tokens: List[str], entities: List[str]) -> List[str]:
     return vocab_tree.trace(tokens, entities)
+
 
 def load_vocab_json(json_path: str) -> None:
     return vocab_tree.load_vocab_json(json_path)
@@ -200,9 +310,9 @@ if __name__ == "__main__":
             "entities": ["bournemouth art museum"],
         },
         {
-            "name": "checking if contain sentences",
-            "tokens": ["what", "would", "you", "like", "to", "eat", "today"],
-            "entities": [],
+            "name": "postcode-like entity fallback",
+            "tokens": ["the fishmonger", "bh1 1jq"],
+            "entities": ["the fishmonger", "bh1 1jq"],
         },
     ]
 

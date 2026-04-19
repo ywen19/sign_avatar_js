@@ -2,6 +2,7 @@ import re
 from typing import List
 
 from language_utils.gliner_service import load_gliner_model, predict_entities
+from language_utils.number_normalization import normalize_numbers_in_sentence
 
 
 GLINER_LABELS = [
@@ -61,8 +62,11 @@ class TextAnalyzer:
 
         return text
 
+    def canonicalize_for_entity_match(self, text: str) -> str:
+        return self.normalize_sentence_for_match(text)
+
     def tokenize_plain(self, text: str) -> List[str]:
-        text = self.normalize_sentence_for_match(text)
+        text = self.canonicalize_for_entity_match(text)
         return text.split() if text else []
 
     def tokenize_with_entities(self, text: str, entities: List[str]) -> List[str]:
@@ -147,7 +151,7 @@ class TextAnalyzer:
                 if not chunk_text:
                     continue
 
-            normalized = self.normalize_sentence_for_match(chunk_text)
+            normalized = self.canonicalize_for_entity_match(chunk_text)
             if not normalized:
                 continue
 
@@ -158,6 +162,11 @@ class TextAnalyzer:
             cleaned.append(normalized)
 
         return cleaned
+
+    def normalize_for_runtime_match(self, text: str) -> str:
+        text = normalize_numbers_in_sentence(text)
+        text = self.normalize_sentence_for_match(text)
+        return text
 
 
 text_analyzer = TextAnalyzer()
@@ -185,3 +194,6 @@ def normalize_sentence_for_match(text: str) -> str:
 
 def detect_entities(text: str) -> List[str]:
     return text_analyzer.detect_entities(text)
+
+def normalize_for_runtime_match(text: str) -> str:
+    return text_analyzer.normalize_for_runtime_match(text)
