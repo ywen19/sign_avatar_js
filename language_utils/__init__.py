@@ -24,6 +24,14 @@ from .vocab_tree import (
 
 from .number_normalization import normalize_numbers_in_sentence
 
+from .gliner_service import (
+    GLiNERService,
+    load_gliner_model,
+    predict_entities,
+    cleanup_gliner
+)
+
+
 __all__ = [
     "SmolLMService",
     "load_model",
@@ -43,5 +51,9 @@ __all__ = [
     "print_vocab_subtree",
     "trace_tokens",
     "load_vocab_json",
-    "normalize_numbers_in_sentence"
+    "normalize_numbers_in_sentence",
+    "GLiNERService",
+    "load_gliner_model",
+    "predict_entities",
+    "cleanup_gliner"
 ]
