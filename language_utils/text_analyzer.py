@@ -1,48 +1,52 @@
-import importlib.util
 import re
-import subprocess
-import sys
 from typing import List
 
-import spacy
+from language_utils.gliner_service import load_gliner_model, predict_entities
+
+
+GLINER_LABELS = [
+    "person",
+    "city",
+    "region",
+    "country",
+    "restaurant",
+    "gallery",
+    "museum",
+    "address",
+]
+
+GLINER_THRESHOLD = 0.65
 
 
 class TextAnalyzer:
     _instance = None
-    MODEL_NAME = "en_core_web_sm"
 
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(TextAnalyzer, cls).__new__(cls)
-            cls._instance.nlp = None
-            cls._instance.keep_labels = {"PERSON", "GPE", "LOC", "FAC", "ORG"}
+            cls._instance.model_loaded = False
         return cls._instance
 
-    def _ensure_model_installed(self) -> None:
-        if importlib.util.find_spec(self.MODEL_NAME) is None:
-            print(f"{self.MODEL_NAME} not found. Downloading...")
-            subprocess.check_call(
-                [sys.executable, "-m", "spacy", "download", self.MODEL_NAME]
-            )
-        else:
-            print(f"{self.MODEL_NAME} already installed.")
-
     def load_model(self) -> None:
-        if self.nlp is not None:
+        if self.model_loaded:
             print("Text analyzer already loaded.")
             return
 
         print("Loading text analyzer...")
-        self._ensure_model_installed()
-        self.nlp = spacy.load(self.MODEL_NAME)
+        load_gliner_model()
+        self.model_loaded = True
         print("Text analyzer loaded.")
 
     def break_into_sentences(self, text: str) -> List[str]:
-        if self.nlp is None:
-            raise RuntimeError("Text analyzer not loaded. Call load_model() first.")
+        if not text:
+            return []
 
-        doc = self.nlp(text)
-        return [sent.text.strip() for sent in doc.sents if sent.text.strip()]
+        text = text.strip()
+        if not text:
+            return []
+
+        parts = re.split(r"(?<=[.!?])\s+", text)
+        return [part.strip() for part in parts if part.strip()]
 
     def normalize_sentence_for_match(self, text: str) -> str:
         text = text.lower()
@@ -60,7 +64,6 @@ class TextAnalyzer:
     def tokenize_plain(self, text: str) -> List[str]:
         text = self.normalize_sentence_for_match(text)
         return text.split() if text else []
-
 
     def tokenize_with_entities(self, text: str, entities: List[str]) -> List[str]:
         if not text:
@@ -93,8 +96,8 @@ class TextAnalyzer:
             matched = None
 
             for ent_tokens in entity_index.get(current, []):
-                L = len(ent_tokens)
-                if sentence_tokens[i:i + L] == ent_tokens:
+                length = len(ent_tokens)
+                if sentence_tokens[i:i + length] == ent_tokens:
                     matched = ent_tokens
                     break
 
@@ -107,16 +110,54 @@ class TextAnalyzer:
 
         return results
 
+    def _strip_address_prefix(self, text: str) -> str:
+        text = text.strip()
+
+        prefixes = ["room ", "gate ", "flat ", "apartment "]
+        lowered = text.lower()
+
+        for prefix in prefixes:
+            if lowered.startswith(prefix):
+                return text[len(prefix):].strip()
+
+        return text
+
     def detect_entities(self, text: str) -> List[str]:
-        keep_labels = {"PERSON", "GPE", "LOC", "FAC", "ORG"}
-        doc = self.nlp(text)
-        results = []
+        if not self.model_loaded:
+            raise RuntimeError("Text analyzer not loaded. Call load_model() first.")
 
-        for ent in doc.ents:
-            if ent.label_ in keep_labels:
-                results.append(self.normalize_sentence_for_match(ent.text))
+        raw_entities = predict_entities(
+            text,
+            GLINER_LABELS,
+            threshold=GLINER_THRESHOLD,
+        )
 
-        return results
+        cleaned = []
+        seen = set()
+
+        for ent in raw_entities:
+            chunk_text = ent.get("text", "").strip()
+            chunk_label = ent.get("label", "").strip().lower()
+
+            if not chunk_text:
+                continue
+
+            if chunk_label == "address":
+                chunk_text = self._strip_address_prefix(chunk_text)
+                if not chunk_text:
+                    continue
+
+            normalized = self.normalize_sentence_for_match(chunk_text)
+            if not normalized:
+                continue
+
+            if normalized in seen:
+                continue
+
+            seen.add(normalized)
+            cleaned.append(normalized)
+
+        return cleaned
 
 
 text_analyzer = TextAnalyzer()
@@ -133,12 +174,14 @@ def break_into_sentences(text: str) -> List[str]:
 def tokenize_plain(text: str) -> List[str]:
     return text_analyzer.tokenize_plain(text)
 
+
 def tokenize_with_entities(text: str, entities: List[str]) -> List[str]:
     return text_analyzer.tokenize_with_entities(text, entities)
 
 
 def normalize_sentence_for_match(text: str) -> str:
     return text_analyzer.normalize_sentence_for_match(text)
+
 
 def detect_entities(text: str) -> List[str]:
     return text_analyzer.detect_entities(text)

@@ -8,16 +8,15 @@ TRIM_TO_MESSAGES = 6
 
 
 def process_answer_text(answer_text: str):
-    sentences = break_into_sentences(answer_text)
-    sentences = [normalize_numbers_in_sentence(sentence) for sentence in sentences]
+    raw_sentences = break_into_sentences(answer_text)
 
     entities = []
-    for sentence in sentences:
+    for sentence in raw_sentences:
         entities.extend(detect_entities(sentence))
 
     normalized_sentences = [
-        normalize_sentence_for_match(sentence)
-        for sentence in sentences
+        normalize_sentence_for_match(normalize_numbers_in_sentence(sentence))
+        for sentence in raw_sentences
     ]
 
     tokenized_sentences = [
@@ -31,7 +30,7 @@ def process_answer_text(answer_text: str):
     ]
 
     return {
-        "sentences": sentences,
+        "sentences": raw_sentences,
         "entities": entities,
         "normalized_sentences": normalized_sentences,
         "tokenized_sentences": tokenized_sentences,
