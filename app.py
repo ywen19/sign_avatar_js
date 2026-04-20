@@ -228,7 +228,10 @@ def main():
 
     load_model()
     load_text_analyzer()
-    load_vocab_tree("./vocabs/all_vocabs.json")
+    load_vocab_tree(
+        "./vocabs/all_vocabs.json", 
+        "./vocabs/all_vocabs_metadata.jsonl"
+    )
     
     atexit.register(cleanup_app_resources)
     signal.signal(signal.SIGINT, handle_exit_signal)   # Ctrl+C

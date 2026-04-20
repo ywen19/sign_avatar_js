@@ -21,10 +21,17 @@ def process_answer_text(answer_text: str):
         for sentence in normalized_sentences
     ]
 
-    traced_tokens = [
-        trace_tokens(tokens, entities)
-        for tokens in tokenized_sentences
-    ]
+    traced_tokens = []
+    reorder_tags = []
+    reordered_tokens = []
+
+    for tokens in tokenized_sentences:
+        traced, tags = trace_tokens(tokens, entities)
+        reordered = reorder_by_tags(traced, tags)
+
+        traced_tokens.append(traced)
+        reorder_tags.append(tags)
+        reordered_tokens.append(reordered)
 
     return {
         "sentences": raw_sentences,
@@ -32,6 +39,8 @@ def process_answer_text(answer_text: str):
         "normalized_sentences": normalized_sentences,
         "tokenized_sentences": tokenized_sentences,
         "traced_tokens": traced_tokens,
+        "reorder_tags": reorder_tags,
+        "reordered_tokens": reordered_tokens,
     }
 
 
@@ -55,6 +64,15 @@ def print_pipeline_debug(debug_data: dict):
     print("\n[TRACED TOKENS]")
     for item in debug_data["traced_tokens"]:
         print(item)
+
+    print("\n[REORDER TAGS]")
+    for item in debug_data["reorder_tags"]:
+        print(item)
+
+    print("\n[REORDERED TOKENS]")
+    for item in debug_data["reordered_tokens"]:
+        print(item)
+
     print("----------------------\n")
 
 
@@ -66,7 +84,10 @@ def main():
         print("Loading SmolLM, GLiNER text analyzer, and vocab tree...")
         load_model()
         load_text_analyzer()
-        load_vocab_tree("./vocabs/all_vocabs.json")
+        load_vocab_tree(
+            "./vocabs/all_vocabs.json",
+            "./vocabs/all_vocabs_metadata.jsonl",
+        )
         print("Ready.")
         print("Type 'quit' to exit.")
         print("Type ':history' to inspect recent in-memory history.")

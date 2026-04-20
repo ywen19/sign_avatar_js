@@ -30,6 +30,8 @@ from .gliner_service import (
     cleanup_gliner
 )
 
+from .vocab_reorder import reorder_by_tags
+
 
 __all__ = [
     "SmolLMService",
@@ -54,5 +56,6 @@ __all__ = [
     "load_gliner_model",
     "predict_entities",
     "cleanup_gliner",
-    "normalize_for_runtime_match"
+    "normalize_for_runtime_match",
+    "reorder_by_tags"
 ]

@@ -1,7 +1,18 @@
+"""
+This module builds:
+1. vocab tree from our motion vocab for chunk retrieval;
+2. a chunk identity lookup for later chunk reordering
+"""
+
+
 import json
-from typing import List
+from typing import List, Tuple
 
 from language_utils.number_normalization import normalize_numbers_in_sentence
+from language_utils.identity_lookup import (
+    load_identity_lookup,
+    get_reorder_tag
+)
 
 
 END = "__end__"
@@ -174,15 +185,19 @@ class VocabTree:
 
         return [token for token in converted.split() if token]
 
-    def _trace_plain_tokens(self, tokens: List[str], allow_alpha_fallback: bool) -> List[str]:
+    def _trace_plain_tokens(self, tokens: List[str], allow_alpha_fallback: bool
+    ) -> Tuple[List[str], List[int]]:
         results = []
+        reorder_tags = []
         i = 0
 
         while i < len(tokens):
             match = self.match_from(tokens, i, entity_set=set())
 
             if match is not None:
-                results.append(match["vocab_key"])
+                vocab_key = match["vocab_key"]
+                results.append(vocab_key)
+                reorder_tags.append(get_reorder_tag(vocab_key))
                 i = match["end_idx"]
                 continue
 
@@ -191,30 +206,39 @@ class VocabTree:
             if current.isdigit():
                 number_tokens = self._number_piece_to_tokens(current)
                 if number_tokens:
-                    results.extend(self._trace_plain_tokens(number_tokens, allow_alpha_fallback=False))
+                    sub_results, sub_tags = self._trace_plain_tokens(
+                        number_tokens,
+                        allow_alpha_fallback=False,
+                    )
+                    results.extend(sub_results)
+                    reorder_tags.extend(sub_tags)
                 i += 1
                 continue
 
             if allow_alpha_fallback and current.isalpha():
-                results.extend(list(current.lower()))
+                for ch in current.lower():
+                    results.append(ch)
+                    reorder_tags.append(get_reorder_tag(ch))
 
             i += 1
 
-        return results
+        return results, reorder_tags
 
-    def _trace_entity_chunk(self, chunk: str) -> List[str]:
+    def _trace_entity_chunk(self, chunk: str) -> Tuple[List[str], List[int]]:
         whole_match = self._lookup_exact_phrase(chunk)
         if whole_match is not None:
-            return [whole_match]
+            return [whole_match], [get_reorder_tag(whole_match)]
 
         sub_tokens = self._split_mixed_entity_chunk(chunk)
         if not sub_tokens:
-            return []
+            return [], []
 
         return self._trace_plain_tokens(sub_tokens, allow_alpha_fallback=True)
 
-    def trace(self, tokens: List[str], entities: List[str]) -> List[str]:
+    def trace(self, tokens: List[str], entities: List[str]
+    ) -> Tuple[List[str], List[int]]:
         results = []
+        reorder_tags = []
         entity_set = set(entities)
         i = 0
 
@@ -222,31 +246,43 @@ class VocabTree:
             current = tokens[i]
 
             if current in entity_set:
-                results.extend(self._trace_entity_chunk(current))
+                sub_results, sub_tags = self._trace_entity_chunk(current)
+                results.extend(sub_results)
+                reorder_tags.extend(sub_tags)
                 i += 1
                 continue
 
             match = self.match_from(tokens, i, entity_set=entity_set)
 
             if match is not None:
-                results.append(match["vocab_key"])
+                vocab_key = match["vocab_key"]
+                results.append(vocab_key)
+                reorder_tags.append(get_reorder_tag(vocab_key))
                 i = match["end_idx"]
                 continue
 
             if current.isdigit():
                 number_tokens = self._number_piece_to_tokens(current)
                 if number_tokens:
-                    results.extend(self._trace_plain_tokens(number_tokens, allow_alpha_fallback=False))
+                    sub_results, sub_tags = self._trace_plain_tokens(
+                        number_tokens,
+                        allow_alpha_fallback=False,
+                    )
+                    results.extend(sub_results)
+                    reorder_tags.extend(sub_tags)
 
             i += 1
 
-        return results
+        return results, reorder_tags
 
 
 vocab_tree = VocabTree()
 
 
-def load_vocab_tree(json_path: str) -> None:
+def load_vocab_tree(json_path: str, identity_metadata_path: str) -> None:
+    # load the identity metadata in 
+    load_identity_lookup(identity_metadata_path)
+    # build the vocab tree
     vocab_tree.load_vocab_json(json_path)
     vocab_tree.build_tree()
 
@@ -255,7 +291,8 @@ def print_vocab_subtree(prefix=None) -> None:
     vocab_tree.print_subtree(prefix)
 
 
-def trace_tokens(tokens: List[str], entities: List[str]) -> List[str]:
+def trace_tokens(tokens: List[str], entities: List[str]
+) -> Tuple[List[str], List[int]]:
     return vocab_tree.trace(tokens, entities)
 
 
@@ -265,6 +302,7 @@ def load_vocab_json(json_path: str) -> None:
 
 if __name__ == "__main__":
     vocab_tree = VocabTree()
+    load_identity_lookup("../vocabs/all_vocabs_metadata.jsonl")
     vocab_tree.load_vocab_json("../vocabs/all_vocabs.json")
     vocab_tree.build_tree()
 
@@ -321,6 +359,6 @@ if __name__ == "__main__":
         print("tokens   :", case["tokens"])
         print("entities :", case["entities"])
 
-        traced = vocab_tree.trace(case["tokens"], case["entities"])
+        traced, reorder_tags = vocab_tree.trace(case["tokens"], case["entities"])
         print("traced   :", traced)
-        print()
+        print("tags     :", reorder_tags)
