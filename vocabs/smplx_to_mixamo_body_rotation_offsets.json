@@ -1,0 +1,531 @@
+{
+  "source_armature": "SMPLX-lh-female",
+  "target_armature": "Armature",
+  "quaternion_order": "xyzw",
+  "formula": "target_rotation = offset * source_rotation * inverse(offset)",
+  "offset_space": "world_rest_bone_axes",
+  "body_offsets": {
+    "pelvis": {
+      "target_bone": "mixamorig:Hips",
+      "offset": [
+        4e-08,
+        6e-08,
+        -8.2e-07,
+        1.0
+      ],
+      "angle_degrees": 0.0
+    },
+    "spine1": {
+      "target_bone": "mixamorig:Spine",
+      "offset": [
+        0.09803294,
+        -0.00021492,
+        -0.00714274,
+        0.99515754
+      ],
+      "angle_degrees": 11.282
+    },
+    "spine2": {
+      "target_bone": "mixamorig:Spine1",
+      "offset": [
+        0.09803295,
+        -0.00021492,
+        -0.00714274,
+        0.99515754
+      ],
+      "angle_degrees": 11.282
+    },
+    "spine3": {
+      "target_bone": "mixamorig:Spine2",
+      "offset": [
+        5e-08,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "angle_degrees": 0.0
+    },
+    "neck": {
+      "target_bone": "mixamorig:Neck",
+      "offset": [
+        5e-08,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "angle_degrees": 0.0
+    },
+    "head": {
+      "target_bone": "mixamorig:Head",
+      "offset": [
+        4e-08,
+        -0.0,
+        -0.0,
+        1.0
+      ],
+      "angle_degrees": 0.0
+    },
+    "left_collar": {
+      "target_bone": "mixamorig:LeftShoulder",
+      "offset": [
+        -0.56851292,
+        -0.4204675,
+        0.56564575,
+        0.42431706
+      ],
+      "angle_degrees": 129.785
+    },
+    "left_shoulder": {
+      "target_bone": "mixamorig:LeftArm",
+      "offset": [
+        -0.50000012,
+        -0.5,
+        0.49999976,
+        0.5000003
+      ],
+      "angle_degrees": 120.0
+    },
+    "left_elbow": {
+      "target_bone": "mixamorig:LeftForeArm",
+      "offset": [
+        -0.50000036,
+        -0.4999997,
+        0.4999997,
+        0.5000003
+      ],
+      "angle_degrees": 120.0
+    },
+    "left_wrist": {
+      "target_bone": "mixamorig:LeftHand",
+      "offset": [
+        -0.50000042,
+        -0.4999997,
+        0.4999997,
+        0.50000018
+      ],
+      "angle_degrees": 120.0
+    },
+    "right_collar": {
+      "target_bone": "mixamorig:RightShoulder",
+      "offset": [
+        -0.56750917,
+        0.42182136,
+        -0.57044542,
+        0.41784224
+      ],
+      "angle_degrees": 130.603
+    },
+    "right_shoulder": {
+      "target_bone": "mixamorig:RightArm",
+      "offset": [
+        -0.50000048,
+        0.49999943,
+        -0.50000006,
+        0.5
+      ],
+      "angle_degrees": 120.0
+    },
+    "right_elbow": {
+      "target_bone": "mixamorig:RightForeArm",
+      "offset": [
+        -0.50000054,
+        0.49999943,
+        -0.5000003,
+        0.49999982
+      ],
+      "angle_degrees": 120.0
+    },
+    "right_wrist": {
+      "target_bone": "mixamorig:RightHand",
+      "offset": [
+        -0.50000054,
+        0.49999949,
+        -0.50000012,
+        0.49999988
+      ],
+      "angle_degrees": 120.0
+    },
+    "left_hip": {
+      "target_bone": "mixamorig:LeftUpLeg",
+      "offset": [
+        5e-08,
+        0.00443803,
+        -0.99999017,
+        0.0
+      ],
+      "angle_degrees": 180.0
+    },
+    "left_knee": {
+      "target_bone": "mixamorig:LeftLeg",
+      "offset": [
+        8e-08,
+        -0.0236859,
+        0.99971944,
+        0.0
+      ],
+      "angle_degrees": 180.0
+    },
+    "left_ankle": {
+      "target_bone": "mixamorig:LeftFoot",
+      "offset": [
+        0.03693157,
+        0.39076704,
+        0.91843712,
+        0.04909708
+      ],
+      "angle_degrees": 174.372
+    },
+    "left_foot": {
+      "target_bone": "mixamorig:LeftToeBase",
+      "offset": [
+        0.03257829,
+        0.70279628,
+        0.70991254,
+        0.03225287
+      ],
+      "angle_degrees": 176.303
+    },
+    "right_hip": {
+      "target_bone": "mixamorig:RightUpLeg",
+      "offset": [
+        5e-08,
+        0.00443804,
+        -0.99999017,
+        0.0
+      ],
+      "angle_degrees": 180.0
+    },
+    "right_knee": {
+      "target_bone": "mixamorig:RightLeg",
+      "offset": [
+        8e-08,
+        -0.02368589,
+        0.99971944,
+        0.0
+      ],
+      "angle_degrees": 180.0
+    },
+    "right_ankle": {
+      "target_bone": "mixamorig:RightFoot",
+      "offset": [
+        0.0369334,
+        -0.39076731,
+        -0.91843688,
+        0.04909701
+      ],
+      "angle_degrees": 174.372
+    },
+    "right_foot": {
+      "target_bone": "mixamorig:RightToeBase",
+      "offset": [
+        0.03257981,
+        -0.70279628,
+        -0.70991254,
+        0.03225192
+      ],
+      "angle_degrees": 176.304
+    }
+  },
+  "finger_offsets": {
+    "left_thumb1": {
+      "target_bone": "mixamorig:LeftHandThumb1",
+      "offset": [
+        -0.74219137,
+        -0.26876408,
+        0.41575989,
+        0.45173186
+      ],
+      "angle_degrees": 126.29
+    },
+    "left_thumb2": {
+      "target_bone": "mixamorig:LeftHandThumb2",
+      "offset": [
+        -0.7421748,
+        -0.2687664,
+        0.41573402,
+        0.45178136
+      ],
+      "angle_degrees": 126.284
+    },
+    "left_thumb3": {
+      "target_bone": "mixamorig:LeftHandThumb3",
+      "offset": [
+        -0.74220413,
+        -0.26867038,
+        0.41566393,
+        0.45185477
+      ],
+      "angle_degrees": 126.275
+    },
+    "left_index1": {
+      "target_bone": "mixamorig:LeftHandIndex1",
+      "offset": [
+        -0.50005543,
+        -0.49994457,
+        0.49996096,
+        0.50003904
+      ],
+      "angle_degrees": 119.995
+    },
+    "left_index2": {
+      "target_bone": "mixamorig:LeftHandIndex2",
+      "offset": [
+        -0.49990562,
+        -0.50009441,
+        0.50006586,
+        0.49993405
+      ],
+      "angle_degrees": 120.009
+    },
+    "left_index3": {
+      "target_bone": "mixamorig:LeftHandIndex3",
+      "offset": [
+        -0.50002229,
+        -0.49997774,
+        0.49998486,
+        0.5000152
+      ],
+      "angle_degrees": 119.998
+    },
+    "left_middle1": {
+      "target_bone": "mixamorig:LeftHandMiddle1",
+      "offset": [
+        -0.49998289,
+        -0.50001705,
+        0.50001258,
+        0.49998754
+      ],
+      "angle_degrees": 120.002
+    },
+    "left_middle2": {
+      "target_bone": "mixamorig:LeftHandMiddle2",
+      "offset": [
+        -0.4999449,
+        -0.50005496,
+        0.5000391,
+        0.4999612
+      ],
+      "angle_degrees": 120.005
+    },
+    "left_middle3": {
+      "target_bone": "mixamorig:LeftHandMiddle3",
+      "offset": [
+        -0.50005364,
+        -0.49994648,
+        0.49996167,
+        0.50003833
+      ],
+      "angle_degrees": 119.995
+    },
+    "left_ring1": {
+      "target_bone": "mixamorig:LeftHandRing1",
+      "offset": [
+        -0.49996498,
+        -0.50003499,
+        0.50002569,
+        0.49997443
+      ],
+      "angle_degrees": 120.003
+    },
+    "left_ring2": {
+      "target_bone": "mixamorig:LeftHandRing2",
+      "offset": [
+        -0.50002587,
+        -0.49997413,
+        0.49999505,
+        0.50000513
+      ],
+      "angle_degrees": 119.999
+    },
+    "left_ring3": {
+      "target_bone": "mixamorig:LeftHandRing3",
+      "offset": [
+        -0.50009316,
+        -0.49990702,
+        0.49999493,
+        0.50000507
+      ],
+      "angle_degrees": 119.999
+    },
+    "left_pinky1": {
+      "target_bone": "mixamorig:LeftHandPinky1",
+      "offset": [
+        -0.49997687,
+        -0.50002319,
+        0.50001723,
+        0.49998271
+      ],
+      "angle_degrees": 120.002
+    },
+    "left_pinky2": {
+      "target_bone": "mixamorig:LeftHandPinky2",
+      "offset": [
+        -0.49988928,
+        -0.50011081,
+        0.49995559,
+        0.50004447
+      ],
+      "angle_degrees": 119.994
+    },
+    "left_pinky3": {
+      "target_bone": "mixamorig:LeftHandPinky3",
+      "offset": [
+        -0.50001001,
+        -0.49999005,
+        0.49999249,
+        0.50000757
+      ],
+      "angle_degrees": 119.999
+    },
+    "right_thumb1": {
+      "target_bone": "mixamorig:RightHandThumb1",
+      "offset": [
+        -0.74090487,
+        0.26738322,
+        -0.41792959,
+        0.45266002
+      ],
+      "angle_degrees": 126.171
+    },
+    "right_thumb2": {
+      "target_bone": "mixamorig:RightHandThumb2",
+      "offset": [
+        -0.74086946,
+        0.26739869,
+        -0.41788584,
+        0.45274919
+      ],
+      "angle_degrees": 126.16
+    },
+    "right_thumb3": {
+      "target_bone": "mixamorig:RightHandThumb3",
+      "offset": [
+        -0.74094468,
+        0.26731879,
+        -0.41791731,
+        0.45264429
+      ],
+      "angle_degrees": 126.173
+    },
+    "right_index1": {
+      "target_bone": "mixamorig:RightHandIndex1",
+      "offset": [
+        -0.50007504,
+        0.49992499,
+        -0.49995172,
+        0.50004834
+      ],
+      "angle_degrees": 119.994
+    },
+    "right_index2": {
+      "target_bone": "mixamorig:RightHandIndex2",
+      "offset": [
+        -0.50000995,
+        0.49998987,
+        -0.5001173,
+        0.49988279
+      ],
+      "angle_degrees": 120.015
+    },
+    "right_index3": {
+      "target_bone": "mixamorig:RightHandIndex3",
+      "offset": [
+        -0.5000459,
+        0.49995416,
+        -0.49997115,
+        0.50002885
+      ],
+      "angle_degrees": 119.996
+    },
+    "right_middle1": {
+      "target_bone": "mixamorig:RightHandMiddle1",
+      "offset": [
+        -0.49998748,
+        0.5000124,
+        -0.50001007,
+        0.49998999
+      ],
+      "angle_degrees": 120.001
+    },
+    "right_middle2": {
+      "target_bone": "mixamorig:RightHandMiddle2",
+      "offset": [
+        -0.4999944,
+        0.50000554,
+        -0.49993235,
+        0.50006777
+      ],
+      "angle_degrees": 119.991
+    },
+    "right_middle3": {
+      "target_bone": "mixamorig:RightHandMiddle3",
+      "offset": [
+        -0.50008529,
+        0.49991468,
+        -0.50001347,
+        0.49998659
+      ],
+      "angle_degrees": 120.002
+    },
+    "right_ring1": {
+      "target_bone": "mixamorig:RightHandRing1",
+      "offset": [
+        -0.49993089,
+        0.50006908,
+        -0.50005329,
+        0.49994689
+      ],
+      "angle_degrees": 120.007
+    },
+    "right_ring2": {
+      "target_bone": "mixamorig:RightHandRing2",
+      "offset": [
+        -0.49999964,
+        0.50000042,
+        -0.50003302,
+        0.49996692
+      ],
+      "angle_degrees": 120.004
+    },
+    "right_ring3": {
+      "target_bone": "mixamorig:RightHandRing3",
+      "offset": [
+        -0.50001699,
+        0.49998307,
+        -0.49998784,
+        0.50001216
+      ],
+      "angle_degrees": 119.998
+    },
+    "right_pinky1": {
+      "target_bone": "mixamorig:RightHandPinky1",
+      "offset": [
+        -0.49993116,
+        0.50006884,
+        -0.50005215,
+        0.49994791
+      ],
+      "angle_degrees": 120.007
+    },
+    "right_pinky2": {
+      "target_bone": "mixamorig:RightHandPinky2",
+      "offset": [
+        -0.50011319,
+        0.49988669,
+        -0.49991882,
+        0.50008124
+      ],
+      "angle_degrees": 119.989
+    },
+    "right_pinky3": {
+      "target_bone": "mixamorig:RightHandPinky3",
+      "offset": [
+        -0.49998695,
+        0.50001317,
+        -0.50001019,
+        0.49998969
+      ],
+      "angle_degrees": 120.001
+    }
+  }
+}
