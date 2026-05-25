@@ -14,7 +14,7 @@ const stageEl = document.getElementById("avatar-stage");
 
 function normalizeBoneName(name) {
   if (!name) return name;
-  return name.replace(/^mixamorig[:_]?/i, "");
+  return String(name).trim().replace(/^mixamorig[:_.]?/i, "");
 }
 
 function log(...args) {

@@ -25,7 +25,7 @@ TRIM_TO_MESSAGES = 6
 history_store = ChatHistoryStore("chat_history.jsonl")
 
 loader = TestAnimLoader(
-    default_json="Dancing_mixamo_com_frames.json"
+    default_json="vocabs/art_gallery_0_threejs.json"
 )
 
 
