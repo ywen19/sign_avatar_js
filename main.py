@@ -3,7 +3,7 @@ from switch_anim import TestAnimLoader
 
 app = Flask(__name__)
 loader = TestAnimLoader(
-    default_json="Dancing_mixamo_com_frames.json"
+    default_json="./vocabs/art_gallery_0_mixamo.json"
 )
 
 
