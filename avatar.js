@@ -57,7 +57,7 @@ function init() {
 }
 
 function loadModel() {
-  const url = "/models/model.glb";
+  const url = "/models/model1.glb";
   log("Trying to load model from:", url);
 
   const loader = new THREE.GLTFLoader();
@@ -66,7 +66,7 @@ function loadModel() {
     url,
     async function (gltf) {
       avatar = gltf.scene;
-      avatar.scale.set(100, 100, 100);
+      avatar.scale.set(10, 10, 10);
       scene.add(avatar);
 
       const bbox = new THREE.Box3().setFromObject(avatar);

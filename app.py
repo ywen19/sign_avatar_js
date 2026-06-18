@@ -1,4 +1,5 @@
 import http.server
+import errno
 import socketserver
 import threading
 import webbrowser
@@ -27,6 +28,25 @@ history_store = ChatHistoryStore("chat_history.jsonl")
 loader = TestAnimLoader(
     default_json="vocabs/art_gallery_0_threejs.json"
 )
+
+
+class ReusableTCPServer(socketserver.TCPServer):
+    allow_reuse_address = True
+
+
+def create_server(handler_factory, preferred_port=PORT, host="127.0.0.1", max_attempts=20):
+    for port in range(preferred_port, preferred_port + max_attempts):
+        try:
+            return ReusableTCPServer((host, port), handler_factory)
+        except OSError as e:
+            if e.errno != errno.EADDRINUSE:
+                raise
+            print(f"Port {port} is already in use, trying {port + 1}...")
+
+    raise OSError(
+        errno.EADDRINUSE,
+        f"No free port found from {preferred_port} to {preferred_port + max_attempts - 1}",
+    )
 
 
 class FrontendHandler(http.server.SimpleHTTPRequestHandler):
@@ -226,17 +246,6 @@ def shutdown_app():
 def main():
     global httpd
 
-    load_model()
-    load_text_analyzer()
-    load_vocab_tree(
-        "./vocabs/all_vocabs.json", 
-        "./vocabs/all_vocabs_metadata.jsonl"
-    )
-    
-    atexit.register(cleanup_app_resources)
-    signal.signal(signal.SIGINT, handle_exit_signal)   # Ctrl+C
-    signal.signal(signal.SIGTERM, handle_exit_signal)
-
     base_dir = Path(__file__).resolve().parent
     index_file = base_dir / "templates" / "index.html"
 
@@ -248,9 +257,21 @@ def main():
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(base_dir), **kwargs)
 
-    with socketserver.TCPServer(("127.0.0.1", PORT), HandlerFactory) as server:
+    with create_server(HandlerFactory) as server:
         httpd = server
-        url = f"http://127.0.0.1:{PORT}/templates/index.html"
+        selected_port = server.server_address[1]
+        url = f"http://127.0.0.1:{selected_port}/templates/index.html"
+
+        load_model()
+        load_text_analyzer()
+        load_vocab_tree(
+            "./vocabs/all_vocabs.json",
+            "./vocabs/all_vocabs_metadata.jsonl"
+        )
+
+        atexit.register(cleanup_app_resources)
+        signal.signal(signal.SIGINT, handle_exit_signal)   # Ctrl+C
+        signal.signal(signal.SIGTERM, handle_exit_signal)
 
         print(f"Serving frontend from: {base_dir}")
         print(f"Open in browser: {url}")
