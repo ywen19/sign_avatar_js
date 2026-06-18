@@ -57,7 +57,7 @@ function init() {
 }
 
 function loadModel() {
-  const url = "/models/model1.glb";
+  const url = "/models/woman.glb";
   log("Trying to load model from:", url);
 
   const loader = new THREE.GLTFLoader();

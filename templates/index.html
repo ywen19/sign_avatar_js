@@ -69,6 +69,80 @@
       display: block;
     }
 
+    .avatar-toolbar {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+    }
+
+    #avatar-picker-btn {
+      height: 38px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 10px;
+      padding: 0 14px;
+      background: rgba(17, 24, 39, 0.82);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(8px);
+    }
+
+    #avatar-picker-btn:hover {
+      background: rgba(31, 41, 55, 0.92);
+      border-color: rgba(255, 255, 255, 0.36);
+    }
+
+
+    .avatar-popover {
+      position: absolute;
+      top: 60px;
+      left: 14px;
+      z-index: 6;
+      display: none;
+      min-width: 180px;
+      padding: 10px;
+      background: rgba(250, 250, 250, 0.96);
+      border: 1px solid #d1d5db;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.26);
+      backdrop-filter: blur(10px);
+    }
+
+    .avatar-popover.open {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .avatar-choice {
+      height: 42px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .avatar-choice:hover,
+    .avatar-choice:focus-visible {
+      outline: 2px solid #22c55e;
+      outline-offset: 2px;
+      border-color: #22c55e;
+    }
+
+    .avatar-choice.active {
+      background: #111827;
+      color: #ffffff;
+      border-color: #111827;
+    }
+
     .subtitle {
       height: 180px;
       padding: 20px;
@@ -209,7 +283,12 @@
     <div class="app">
       <div class="main">
         <div class="panel stage">
-          <div id="avatar-stage"></div>
+          <div id="avatar-stage">
+            <div class="avatar-toolbar">
+              <button id="avatar-picker-btn" type="button">Avatar</button>
+            </div>
+            <div id="avatar-popover" class="avatar-popover" aria-hidden="true"></div>
+          </div>
         </div>
 
         <div id="subtitle-output" class="panel subtitle">
@@ -273,6 +352,82 @@
     debugLogEl.textContent = "index.html loaded";
     logDebug("index.html loaded");
     logDebug("href =", window.location.href);
+
+
+    const avatarPickerBtn = document.getElementById("avatar-picker-btn");
+    const avatarPopover = document.getElementById("avatar-popover");
+
+    function setAvatarPopoverOpen(isOpen) {
+      if (!avatarPopover || !avatarPickerBtn) return;
+      avatarPopover.classList.toggle("open", isOpen);
+      avatarPopover.setAttribute("aria-hidden", String(!isOpen));
+      avatarPickerBtn.setAttribute("aria-expanded", String(isOpen));
+    }
+
+    function renderAvatarChoices(avatars) {
+      if (!avatarPopover) return;
+
+      avatarPopover.replaceChildren();
+
+      Object.entries(avatars).forEach(([avatarId, avatar]) => {
+        const choice = document.createElement("button");
+        choice.className = "avatar-choice";
+        choice.type = "button";
+        choice.dataset.avatar = avatarId;
+        choice.dataset.model = avatar.model || "";
+        choice.dataset.snapshot = avatar.snapshot || "";
+        choice.textContent = avatar.label || avatarId;
+
+        if (avatar.default) {
+          choice.classList.add("active");
+        }
+
+        choice.addEventListener("click", () => {
+          avatarPopover.querySelectorAll(".avatar-choice").forEach((item) => {
+            item.classList.remove("active");
+          });
+          choice.classList.add("active");
+          logDebug("avatar choice selected =", avatarId, avatar.model);
+        });
+
+        avatarPopover.appendChild(choice);
+      });
+    }
+
+    async function loadAvatarChoices() {
+      try {
+        const response = await fetch("/models/avatars.json", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error(`avatars.json HTTP ${response.status}`);
+        }
+
+        const avatars = await response.json();
+        renderAvatarChoices(avatars);
+        logDebug("avatar choices loaded =", Object.keys(avatars).join(", "));
+      } catch (error) {
+        logDebug("avatar choices failed =", String(error));
+      }
+    }
+
+    if (avatarPickerBtn && avatarPopover) {
+      avatarPickerBtn.setAttribute("aria-haspopup", "true");
+      avatarPickerBtn.setAttribute("aria-expanded", "false");
+
+      avatarPickerBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setAvatarPopoverOpen(!avatarPopover.classList.contains("open"));
+      });
+
+      avatarPopover.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+
+      document.addEventListener("click", () => {
+        setAvatarPopoverOpen(false);
+      });
+
+      loadAvatarChoices();
+    }
 
     window.addEventListener("error", (e) => {
       logDebug("window error:", e.message, "@", e.filename + ":" + e.lineno);
