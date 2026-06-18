@@ -76,9 +76,10 @@
       z-index: 5;
       display: flex;
       align-items: center;
+      gap: 8px;
     }
 
-    #avatar-picker-btn {
+    .avatar-toolbar button {
       height: 38px;
       border: 1px solid rgba(255, 255, 255, 0.22);
       border-radius: 10px;
@@ -92,7 +93,7 @@
       backdrop-filter: blur(8px);
     }
 
-    #avatar-picker-btn:hover {
+    .avatar-toolbar button:hover {
       background: rgba(31, 41, 55, 0.92);
       border-color: rgba(255, 255, 255, 0.36);
     }
@@ -293,6 +294,7 @@
           <div id="avatar-stage">
             <div class="avatar-toolbar">
               <button id="avatar-picker-btn" type="button">Avatar</button>
+              <button id="avatar-replay-btn" type="button">Replay</button>
             </div>
             <div id="avatar-popover" class="avatar-popover" aria-hidden="true"></div>
           </div>
@@ -362,6 +364,7 @@
 
 
     const avatarPickerBtn = document.getElementById("avatar-picker-btn");
+    const avatarReplayBtn = document.getElementById("avatar-replay-btn");
     const avatarPopover = document.getElementById("avatar-popover");
     const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model";
 
@@ -485,6 +488,21 @@
       });
 
       loadAvatarChoices();
+    }
+
+
+    if (avatarReplayBtn) {
+      avatarReplayBtn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        setAvatarPopoverOpen(false);
+
+        if (window.resetAnimationPlayback) {
+          window.resetAnimationPlayback();
+          logDebug("avatar animation replayed");
+        } else {
+          logDebug("avatar replay failed = resetAnimationPlayback is not ready");
+        }
+      });
     }
 
     window.addEventListener("error", (e) => {
