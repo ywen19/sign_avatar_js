@@ -13,6 +13,7 @@ import atexit
 
 from switch_anim import TestAnimLoader
 from language_utils import *
+from motion_retrieval import retrieve_npz_paths
 
 
 PORT = 8000
@@ -28,6 +29,79 @@ history_store = ChatHistoryStore("chat_history.jsonl")
 loader = TestAnimLoader(
     default_json="vocabs/art_gallery_0_threejs.json"
 )
+
+def process_answer_text(answer_text: str):
+    raw_sentences = break_into_sentences(answer_text)
+
+    entities = []
+    for sentence in raw_sentences:
+        entities.extend(detect_entities(sentence))
+
+    normalized_sentences = [
+        normalize_sentence_for_match(sentence)
+        for sentence in raw_sentences
+    ]
+
+    tokenized_sentences = [
+        tokenize_with_entities(sentence, entities)
+        for sentence in normalized_sentences
+    ]
+
+    traced_tokens = []
+
+    for tokens in tokenized_sentences:
+        traced, tags = trace_tokens(tokens, entities)
+
+        traced_tokens.append(traced)
+
+    return {
+        "sentences": raw_sentences,
+        "entities": entities,
+        "normalized_sentences": normalized_sentences,
+        "tokenized_sentences": tokenized_sentences,
+        "traced_tokens": traced_tokens,
+    }
+
+
+def print_pipeline_debug(debug_data: dict):
+    print("\n--- PIPELINE DEBUG ---")
+    print("[SENTENCES]")
+    for i, sentence in enumerate(debug_data["sentences"], 1):
+        print(f"{i}. {sentence}")
+
+    print("\n[ENTITIES]")
+    print(debug_data["entities"])
+
+    print("\n[NORMALIZED]")
+    for item in debug_data["normalized_sentences"]:
+        print(item)
+
+    print("\n[TOKENIZED WITH ENTITIES]")
+    for item in debug_data["tokenized_sentences"]:
+        print(item)
+
+    print("\n[TRACED TOKENS]")
+    for item in debug_data["traced_tokens"]:
+        print(item)
+
+    print("----------------------\n")
+
+
+def print_npz_paths(debug_data: dict):
+    print("\n[NPZ PATHS]")
+
+    for sentence_idx, traced_tokens in enumerate(debug_data["traced_tokens"], 1):
+        npz_paths = retrieve_npz_paths(traced_tokens)
+
+        print(f"\nSentence {sentence_idx}:")
+        for token, npz_path in zip(traced_tokens, npz_paths):
+            if npz_path is None:
+                print(f"[MISSING] {token}")
+            else:
+                print(f"[FOUND]   {token} -> {npz_path}")
+
+    print()
+
 
 
 class ReusableTCPServer(socketserver.TCPServer):
@@ -141,28 +215,11 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
                         conversation_history=conversation_history[-10:]
                     )
                 
-                # process the llm answers for displaying in the GUI
-                # break into sentences
-                sentences = break_into_sentences(latest_llm_answer)
-                print(sentences)
+                print(f"\nAssistant: {latest_llm_answer}")
 
-                # convert number digits to words
-                # this is because our vocab do not support digit tracing
-                sentences = [normalize_numbers_in_sentence(sentence) for sentence in sentences]
-
-                entities = []
-                for sentence in sentences:
-                    entities.extend(detect_entities(sentence))
-                print(entities)
-
-                norm_sentences = [normalize_sentence_for_match(sentence) for sentence in sentences]
-                print(norm_sentences)
-
-                tokenized_sentences = [tokenize_with_entities(sentence, entities) for sentence in sentences]
-                print(tokenized_sentences)
-
-                traced_tokens = [trace_tokens(sentence, entities) for sentence in tokenized_sentences]
-                print(traced_tokens)
+                debug_data = process_answer_text(latest_llm_answer)
+                print_pipeline_debug(debug_data)
+                print_npz_paths(debug_data)
 
                 # chat history management
                 user_message = {
