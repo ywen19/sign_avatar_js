@@ -104,7 +104,6 @@
       left: 14px;
       z-index: 6;
       display: none;
-      min-width: 180px;
       padding: 10px;
       background: rgba(250, 250, 250, 0.96);
       border: 1px solid #d1d5db;
@@ -115,19 +114,21 @@
 
     .avatar-popover.open {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      grid-template-columns: repeat(auto-fit, 112px);
+      gap: 10px;
     }
 
     .avatar-choice {
-      height: 42px;
+      width: 112px;
+      height: 112px;
       border: 1px solid #d1d5db;
       border-radius: 10px;
+      padding: 8px;
       background: #ffffff;
-      color: #111827;
-      font-size: 14px;
-      font-weight: 600;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .avatar-choice:hover,
@@ -139,8 +140,14 @@
 
     .avatar-choice.active {
       background: #111827;
-      color: #ffffff;
       border-color: #111827;
+    }
+
+    .avatar-choice-img {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      display: block;
     }
 
     .subtitle {
@@ -356,6 +363,20 @@
 
     const avatarPickerBtn = document.getElementById("avatar-picker-btn");
     const avatarPopover = document.getElementById("avatar-popover");
+    const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model";
+
+    function normalizeAvatarModelPath(model) {
+      if (!model) return "";
+      return model.startsWith("/") ? model : `/models/${model}`;
+    }
+
+    function getStoredAvatarModelPath() {
+      try {
+        return window.localStorage.getItem(AVATAR_MODEL_STORAGE_KEY) || "";
+      } catch {
+        return "";
+      }
+    }
 
     function setAvatarPopoverOpen(isOpen) {
       if (!avatarPopover || !avatarPickerBtn) return;
@@ -369,25 +390,62 @@
 
       avatarPopover.replaceChildren();
 
+      const storedModelPath = getStoredAvatarModelPath();
+
       Object.entries(avatars).forEach(([avatarId, avatar]) => {
         const choice = document.createElement("button");
         choice.className = "avatar-choice";
         choice.type = "button";
+        const modelPath = normalizeAvatarModelPath(avatar.model);
+
+        const snapshotPath = normalizeAvatarModelPath(avatar.snapshot);
+        const label = avatar.label || avatarId;
+
         choice.dataset.avatar = avatarId;
         choice.dataset.model = avatar.model || "";
         choice.dataset.snapshot = avatar.snapshot || "";
-        choice.textContent = avatar.label || avatarId;
+        choice.setAttribute("aria-label", label);
 
-        if (avatar.default) {
+        if (snapshotPath) {
+          const image = document.createElement("img");
+          image.className = "avatar-choice-img";
+          image.src = snapshotPath;
+          image.alt = "";
+          image.loading = "lazy";
+          choice.appendChild(image);
+        }
+
+        if (storedModelPath ? modelPath === storedModelPath : avatar.default) {
           choice.classList.add("active");
         }
 
-        choice.addEventListener("click", () => {
-          avatarPopover.querySelectorAll(".avatar-choice").forEach((item) => {
-            item.classList.remove("active");
-          });
-          choice.classList.add("active");
-          logDebug("avatar choice selected =", avatarId, avatar.model);
+        choice.addEventListener("click", async () => {
+          setAvatarPopoverOpen(false);
+
+          if (!window.switchAvatarModel) {
+            logDebug("avatar switch failed = switchAvatarModel is not ready");
+            return;
+          }
+
+          try {
+            logDebug("avatar switch requested =", avatarId, modelPath);
+            const switched = await window.switchAvatarModel(modelPath);
+
+            if (switched === false) {
+              return;
+            }
+
+            avatarPopover.querySelectorAll(".avatar-choice").forEach((item) => {
+              item.classList.remove("active");
+            });
+            choice.classList.add("active");
+            try {
+              window.localStorage.setItem(AVATAR_MODEL_STORAGE_KEY, modelPath);
+            } catch {}
+            logDebug("avatar switched =", avatarId, avatar.model);
+          } catch (error) {
+            logDebug("avatar switch failed =", String(error));
+          }
         });
 
         avatarPopover.appendChild(choice);

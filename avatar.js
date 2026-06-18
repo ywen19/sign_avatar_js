@@ -8,6 +8,15 @@ let poseFrames = {};
 let maxFrame = 0;
 let fps = 30;
 let currentAnimationName = null;
+let currentAnimationPayload = null;
+let currentModelUrl = null;
+let modelLoadRequestId = 0;
+
+const DEFAULT_MODEL_URL = "/models/woman.glb";
+const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model";
+const modelAssetCache = new Map();
+const modelAssetPromises = new Map();
+let avatarManifestPromise = null;
 
 const clock = new THREE.Clock();
 const stageEl = document.getElementById("avatar-stage");
@@ -56,56 +65,211 @@ function init() {
   window.addEventListener("resize", onWindowResize);
 }
 
-function loadModel() {
-  const url = "/models/woman.glb";
-  log("Trying to load model from:", url);
+function clearBoneNameMap() {
+  Object.keys(boneNameMap).forEach((key) => {
+    delete boneNameMap[key];
+  });
+}
+
+function normalizeModelUrl(url) {
+  if (!url) return DEFAULT_MODEL_URL;
+  return url.startsWith("/") ? url : `/models/${url}`;
+}
+
+function getStoredAvatarModelUrl() {
+  try {
+    const stored = window.localStorage.getItem(AVATAR_MODEL_STORAGE_KEY);
+    return stored ? normalizeModelUrl(stored) : null;
+  } catch (err) {
+    console.warn("Could not read stored avatar model:", err);
+    return null;
+  }
+}
+
+function rememberCurrentAvatarModel() {
+  if (!currentModelUrl) return;
+
+  try {
+    window.localStorage.setItem(AVATAR_MODEL_STORAGE_KEY, currentModelUrl);
+  } catch (err) {
+    console.warn("Could not store avatar model:", err);
+  }
+}
+
+function prepareLoadedAvatar(gltf) {
+  const nextAvatar = gltf.scene;
+  let nextSkeleton = null;
+
+  nextAvatar.scale.set(10, 10, 10);
+
+  const bbox = new THREE.Box3().setFromObject(nextAvatar);
+  const size = new THREE.Vector3();
+  const center = new THREE.Vector3();
+  bbox.getSize(size);
+  bbox.getCenter(center);
+
+  log("Model bbox size:", size);
+  log("Model bbox center:", center);
+
+  nextAvatar.position.sub(center);
+
+  nextAvatar.traverse((obj) => {
+    if (obj.isSkinnedMesh && !nextSkeleton) {
+      nextSkeleton = obj.skeleton;
+    }
+  });
+
+  return { nextAvatar, nextSkeleton };
+}
+
+function installLoadedAvatar(nextAvatar, nextSkeleton) {
+  const previousAvatar = avatar;
+
+  if (previousAvatar && previousAvatar !== nextAvatar) {
+    scene.remove(previousAvatar);
+  }
+
+  avatar = nextAvatar;
+  skeleton = nextSkeleton;
+  clearBoneNameMap();
+
+  if (avatar.parent !== scene) {
+    scene.add(avatar);
+  }
+
+  if (!skeleton) {
+    console.warn("No skeleton found!");
+  } else {
+    skeleton.bones.forEach((bone) => {
+      const key = normalizeBoneName(bone.name);
+      boneNameMap[key] = bone;
+    });
+    log("Skeleton bones normalized:", Object.keys(boneNameMap));
+  }
+}
+
+function loadAvatarAsset(url) {
+  const modelUrl = normalizeModelUrl(url);
+
+  if (modelAssetCache.has(modelUrl)) {
+    return Promise.resolve(modelAssetCache.get(modelUrl));
+  }
+
+  if (modelAssetPromises.has(modelUrl)) {
+    return modelAssetPromises.get(modelUrl);
+  }
+
+  log("Loading avatar asset:", modelUrl);
 
   const loader = new THREE.GLTFLoader();
-
-  loader.load(
-    url,
-    async function (gltf) {
-      avatar = gltf.scene;
-      avatar.scale.set(10, 10, 10);
-      scene.add(avatar);
-
-      const bbox = new THREE.Box3().setFromObject(avatar);
-      const size = new THREE.Vector3();
-      const center = new THREE.Vector3();
-      bbox.getSize(size);
-      bbox.getCenter(center);
-
-      log("Model bbox size:", size);
-      log("Model bbox center:", center);
-
-      avatar.position.sub(center);
-
-      avatar.traverse((obj) => {
-        if (obj.isSkinnedMesh && !skeleton) {
-          skeleton = obj.skeleton;
-        }
-      });
-
-      if (!skeleton) {
-        console.warn("No skeleton found!");
-      } else {
-        skeleton.bones.forEach((bone) => {
-          const key = normalizeBoneName(bone.name);
-          boneNameMap[key] = bone;
-        });
-        log("Skeleton bones normalized:", Object.keys(boneNameMap));
+  const promise = new Promise((resolve, reject) => {
+    loader.load(
+      modelUrl,
+      function (gltf) {
+        const asset = prepareLoadedAvatar(gltf);
+        modelAssetCache.set(modelUrl, asset);
+        modelAssetPromises.delete(modelUrl);
+        log("Avatar asset cached:", modelUrl);
+        resolve(asset);
+      },
+      undefined,
+      function (err) {
+        modelAssetPromises.delete(modelUrl);
+        console.error("GLB load failed:", err);
+        reject(err);
       }
+    );
+  });
 
-      log("GLB loaded successfully.");
+  modelAssetPromises.set(modelUrl, promise);
+  return promise;
+}
 
-      // 模型加载成功后，再从后端拿默认动画
-      await fetchDefaultAnimationFromBackend();
-    },
-    undefined,
-    function (err) {
-      console.error("GLB load failed:", err);
+async function loadModel(url = DEFAULT_MODEL_URL, options = {}) {
+  const modelUrl = normalizeModelUrl(url);
+  const requestId = ++modelLoadRequestId;
+  const shouldFetchDefaultAnimation = Boolean(options.fetchDefaultAnimation);
+
+  log("Trying to load model from:", modelUrl);
+
+  try {
+    const { nextAvatar, nextSkeleton } = await loadAvatarAsset(modelUrl);
+
+    if (requestId !== modelLoadRequestId) {
+      return false;
     }
-  );
+
+    installLoadedAvatar(nextAvatar, nextSkeleton);
+    currentModelUrl = modelUrl;
+    rememberCurrentAvatarModel();
+
+    log("GLB installed successfully.");
+
+    if (shouldFetchDefaultAnimation) {
+      await fetchDefaultAnimationFromBackend();
+    } else if (currentAnimationPayload) {
+      applyAnimationPayload(currentAnimationPayload);
+    } else {
+      resetAnimationPlayback();
+    }
+
+    return true;
+  } catch (err) {
+    console.error("Avatar model switch failed:", err);
+    throw err;
+  }
+}
+
+async function loadAvatarManifest() {
+  if (!avatarManifestPromise) {
+    avatarManifestPromise = fetch("/models/avatars.json", { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`avatars.json HTTP ${response.status}`);
+        }
+        return response.json();
+      });
+  }
+
+  return avatarManifestPromise;
+}
+
+async function getManifestDefaultAvatarModelUrl() {
+  try {
+    const avatars = await loadAvatarManifest();
+    const defaultEntry = Object.values(avatars).find((avatarData) => avatarData.default);
+    return defaultEntry ? normalizeModelUrl(defaultEntry.model) : DEFAULT_MODEL_URL;
+  } catch (err) {
+    console.warn("Avatar manifest default failed:", err);
+    return DEFAULT_MODEL_URL;
+  }
+}
+
+async function getInitialAvatarModelUrl() {
+  return getStoredAvatarModelUrl() || await getManifestDefaultAvatarModelUrl();
+}
+
+async function preloadAvatarModelsFromManifest() {
+  try {
+    const avatars = await loadAvatarManifest();
+    const modelUrls = Object.values(avatars)
+      .map((item) => normalizeModelUrl(item.model))
+      .filter((url, index, all) => url && all.indexOf(url) === index);
+
+    modelUrls.forEach((modelUrl) => {
+      if (modelUrl === currentModelUrl) return;
+
+      loadAvatarAsset(modelUrl)
+        .then(() => {
+          log("Avatar preloaded:", modelUrl);
+        })
+        .catch((err) => {
+          console.warn("Avatar preload failed:", modelUrl, err);
+        });
+    });
+  } catch (err) {
+    console.warn("Avatar manifest preload failed:", err);
+  }
 }
 
 function preparePoseFrames(data) {
@@ -138,6 +302,27 @@ function preparePoseFrames(data) {
   log("Prepared animation. fps =", fps, "maxFrame =", maxFrame);
 }
 
+function applyPoseFrame(frame) {
+  if (!avatar || !skeleton) return;
+
+  for (const name in poseFrames) {
+    const bone = boneNameMap[name];
+    if (!bone) continue;
+
+    const q = poseFrames[name][frame];
+    if (!q) continue;
+
+    bone.quaternion.copy(q);
+  }
+
+  avatar.updateMatrixWorld(true);
+}
+
+function resetAnimationPlayback() {
+  updateAnimation.time = 0;
+  applyPoseFrame(0);
+}
+
 function applyAnimationPayload(payload) {
   if (!payload) {
     console.error("applyAnimationPayload: payload is empty");
@@ -145,6 +330,7 @@ function applyAnimationPayload(payload) {
   }
 
   log("Applying payload:", payload);
+  currentAnimationPayload = payload;
 
   const framesData = payload.frames;
   if (!framesData) {
@@ -157,8 +343,7 @@ function applyAnimationPayload(payload) {
 
   preparePoseFrames(framesData);
 
-  // 切换动画时从第一帧开始播
-  updateAnimation.time = 0;
+  resetAnimationPlayback();
 
   log("Animation applied:", currentAnimationName);
 }
@@ -205,17 +390,7 @@ function updateAnimation(dt) {
   const totalFrames = maxFrame + 1;
   const currentFrame = Math.floor((updateAnimation.time * fps) % totalFrames);
 
-  for (const name in poseFrames) {
-    const bone = boneNameMap[name];
-    if (!bone) continue;
-
-    const q = poseFrames[name][currentFrame];
-    if (!q) continue;
-
-    bone.quaternion.copy(q);
-  }
-
-  avatar.updateMatrixWorld(true);
+  applyPoseFrame(currentFrame);
 }
 
 function animate() {
@@ -242,6 +417,12 @@ function onWindowResize() {
 
 window.fetchEndAnimationFromBackend = fetchEndAnimationFromBackend;
 
+window.switchAvatarModel = async function (modelUrl) {
+  return loadModel(modelUrl, { fetchDefaultAnimation: false });
+};
+
+window.resetAnimationPlayback = resetAnimationPlayback;
+
 window.getCurrentAnimationName = function () {
   return currentAnimationName;
 };
@@ -254,6 +435,8 @@ window.addEventListener("unhandledrejection", function (e) {
   console.error("Unhandled promise rejection:", e.reason);
 });
 
+window.addEventListener("beforeunload", rememberCurrentAvatarModel);
+
 log("Page loaded. href =", window.location.href);
 log("THREE version:", THREE.REVISION);
 
@@ -263,6 +446,26 @@ if (!THREE.GLTFLoader) {
   log("GLTFLoader detected.");
 }
 
+async function startAvatarApp() {
+  const initialModelUrl = await getInitialAvatarModelUrl();
+
+  try {
+    await loadModel(initialModelUrl, { fetchDefaultAnimation: true });
+    preloadAvatarModelsFromManifest();
+  } catch (err) {
+    console.error("Initial avatar load failed:", err);
+
+    if (initialModelUrl !== DEFAULT_MODEL_URL) {
+      try {
+        await loadModel(DEFAULT_MODEL_URL, { fetchDefaultAnimation: true });
+        preloadAvatarModelsFromManifest();
+      } catch (fallbackErr) {
+        console.error("Fallback avatar load failed:", fallbackErr);
+      }
+    }
+  }
+}
+
 init();
-loadModel();
+startAvatarApp();
 animate();
