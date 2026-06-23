@@ -415,8 +415,6 @@ function onWindowResize() {
   renderer.setSize(width, height);
 }
 
-window.fetchEndAnimationFromBackend = fetchEndAnimationFromBackend;
-
 window.switchAvatarModel = async function (modelUrl) {
   return loadModel(modelUrl, { fetchDefaultAnimation: false });
 };

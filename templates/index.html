@@ -36,7 +36,7 @@
     }
 
     .main {
-      flex: 1;
+      flex: 0 1 760px;
       min-width: 0;
       display: flex;
       flex-direction: column;
@@ -140,7 +140,7 @@
     }
 
     .avatar-choice.active {
-      background: #111827;
+      background: #474747;
       border-color: #111827;
     }
 
@@ -162,7 +162,7 @@
     }
 
     .sidebar {
-      width: 340px;
+      width: 390px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -175,24 +175,167 @@
       padding: 14px;
     }
 
+    .control-card {
+      background: #D5DBDE;
+    }
+
+    .app.release-mode .beta-only {
+      display: none;
+    }
+
+    .app.release-mode .control-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app.release-mode .input-row {
+      flex: 1;
+      min-height: 0;
+    }
+
     .title {
-      text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-      color: #1f2937;
-      margin-bottom: 4px;
+      --title-height: 46px;
+      text-align: right;
+      font-family: Rajdhani, "Arial Narrow", "Segoe UI", sans-serif;
+      margin: 0 0 6px 0;
+      height: var(--title-height);
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+
+    .title-svg {
+      width: 100%;
+      height: calc(var(--title-height) + 8px);
+      overflow: visible;
+      display: block;
+    }
+
+    .title-svg text {
+      font-family: Rajdhani, "Arial Narrow", "Segoe UI", sans-serif;
+      font-size: calc(var(--title-height) * 0.78);
+      font-style: normal;
+      font-weight: 860;
+      letter-spacing: 0;
+      text-anchor: end;
+      dominant-baseline: middle;
+      stroke-linejoin: round;
+    }
+
+    .title-fill {
+      fill: #111827;
+    }
+
+    .title-glow {
+      fill: none;
+      stroke: url(#title-edge-gradient);
+      stroke-width: 6px;
+      opacity: 1;
+      filter: none;
+    }
+
+    .title-edge {
+      fill: none;
+      stroke: url(#title-edge-gradient);
+      stroke-width: 2.2px;
+      filter: none;
     }
 
     .camera {
+      position: relative;
       height: 180px;
       border-radius: 14px;
-      background: #111827;
+      background:
+        radial-gradient(circle at 50% 138%, #22384C 0 10%, transparent 11%),
+        radial-gradient(circle at 50% 138%, #01223D 0 30%, transparent 31%),
+        radial-gradient(circle at 50% 138%, #011A2D 0 49%, transparent 50%),
+        radial-gradient(circle at 50% 138%, #010F1B 0 70%, transparent 71%),
+        #000204;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #d1d5db;
-      margin-top: 12px;
+      margin-top: 0;
       overflow: hidden;
+      border-left: 2px solid #2297FF;
+      border-right: 2px solid #2297FF;
+      border-top: 0 solid transparent;
+      border-bottom: 0 solid transparent;
+      transition: border-color 0.25s ease;
+    }
+
+    .camera:hover {
+      border-top: 2px solid #2297FF;
+      border-bottom: 2px solid #2297FF;
+      border-color: #2297FF;
+    }
+
+    .camera.camera-active {
+      border-left-color: #FFFFF8;
+      border-right-color: #FFFFF8;
+    }
+
+    .camera.camera-active:hover {
+      border-color: #FFFFF8;
+    }
+
+    .camera::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: transparent;
+      backdrop-filter: none;
+      box-shadow:
+        inset 0 0 16px rgba(20, 121, 234, 0.95),
+        inset 0 0 36px rgba(20, 121, 234, 0.72),
+        inset 0 0 64px rgba(20, 121, 234, 0.42);
+      opacity: 0;
+      transition: opacity 0.28s ease, box-shadow 0.25s ease, background 0.25s ease;
+      pointer-events: none;
+    }
+
+    .camera.camera-active::before {
+      background: rgba(213, 219, 222, 0.32);
+      backdrop-filter: blur(5px);
+      box-shadow:
+        inset 0 0 16px rgba(255, 255, 248, 0.92),
+        inset 0 0 36px rgba(255, 255, 248, 0.58),
+        inset 0 0 64px rgba(255, 255, 248, 0.28);
+    }
+
+    .camera::after {
+      content: "Coming Soon";
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fffff8;
+      font-family: Rajdhani, "Arial Narrow", "Segoe UI", sans-serif;
+      font-size: 30px;
+      font-style: normal;
+      font-weight: 600;
+      letter-spacing: 0;
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+      transition: opacity 0.28s ease, transform 0.28s ease;
+      pointer-events: none;
+    }
+
+    .camera.camera-active::after {
+      color: #212F4D;
+    }
+
+    .camera:hover::before,
+    .camera:hover::after {
+      opacity: 1;
+    }
+
+    .camera:hover::after {
+      transform: translateY(0) scale(1);
     }
 
     #camera-video {
@@ -200,45 +343,90 @@
       height: 100%;
       object-fit: cover;
       display: block;
-      background: #111827;
+      background:
+        radial-gradient(circle at 50% 138%, #22384C 0 10%, transparent 11%),
+        radial-gradient(circle at 50% 138%, #01223D 0 30%, transparent 31%),
+        radial-gradient(circle at 50% 138%, #011A2D 0 49%, transparent 50%),
+        radial-gradient(circle at 50% 138%, #010F1B 0 70%, transparent 71%),
+        #000204;
     }
 
     .buttons {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 14px;
     }
 
     .input-row {
       display: flex;
-      gap: 10px;
-      margin-top: 12px;
-      align-items: stretch;
+      flex-direction: column;
+      margin-top: 18px;
+      min-height: 190px;
+      border-radius: 32px;
+      background: #fffff8;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
     }
 
     #text-input {
       flex: 1;
-      height: 70px;
-      border: 1px solid #d1d5db;
-      border-radius: 14px;
-      padding: 16px;
+      width: 100%;
+      min-height: 120px;
+      border: none;
+      padding: 24px 24px 0 24px;
+      font-family: inherit;
       font-size: 15px;
+      line-height: 1.5;
       outline: none;
-      background: white;
+      resize: none;
+      overflow-y: auto;
+      scrollbar-color: #024380 transparent;
+      scrollbar-width: thin;
+      background: transparent;
       color: #1f2937;
     }
 
+    #text-input::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    #text-input::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #text-input::-webkit-scrollbar-thumb {
+      background: #024380;
+      border-radius: 999px;
+    }
+
     #send-text-btn {
-      height: 70px;
-      min-width: 80px;
-      border: 1px solid #d1d5db;
-      border-radius: 14px;
-      padding: 0 18px;
-      font-size: 15px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border: none;
+      border-radius: 50%;
+      padding: 0;
+      margin: 10px 18px 18px auto;
       cursor: pointer;
-      background: white;
-      color: #374151;
+      background: transparent;
+      box-shadow: 0 10px 20px rgba(7, 90, 151, 0.24);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #send-text-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 22px rgba(7, 90, 151, 0.3);
+    }
+
+    #send-text-btn img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
     }
 
     button {
@@ -249,15 +437,24 @@
       cursor: pointer;
     }
 
-    .primary {
-      background: #111827;
-      color: white;
+    .buttons button {
+      font-family: Rajdhani, "Arial Narrow", "Segoe UI", sans-serif;
+      font-weight: 300;
+      transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
     }
 
+    .primary,
     .secondary {
-      background: white;
-      color: #374151;
-      border: 1px solid #d1d5db;
+      background: #DCEFFC;
+      color: #111827;
+      border: 1px solid #DCEFFC;
+    }
+
+    .buttons:not(.camera-running) #start-camera-btn,
+    .buttons.camera-running #stop-camera-btn {
+      background: #111827;
+      color: #fffff8;
+      border-color: #111827;
     }
 
     .label {
@@ -306,8 +503,33 @@
       </div>
 
       <div class="sidebar">
-        <div class="card">
-          <div class="title">Sign Demo</div>
+        <div class="card control-card">
+          <div class="title" aria-label="BSL AVATAR">
+            <svg class="title-svg" viewBox="0 0 360 58" role="img" aria-hidden="true">
+              <defs>
+                <linearGradient id="title-edge-gradient" x1="-360" y1="0" x2="0" y2="0" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#659AD3" />
+                  <stop offset="38%" stop-color="#DCEFFC" />
+                  <stop offset="62%" stop-color="#4583E6" />
+                  <stop offset="100%" stop-color="#659AD3" />
+                  <animate attributeName="x1" values="-360;360" dur="2.4s" repeatCount="indefinite" />
+                  <animate attributeName="x2" values="0;720" dur="2.4s" repeatCount="indefinite" />
+                </linearGradient>
+                <filter id="title-neon-glow" x="-30%" y="-80%" width="160%" height="260%">
+                  <feGaussianBlur stdDeviation="1.1" result="softGlow" />
+                  <feGaussianBlur stdDeviation="2.2" result="wideGlow" />
+                  <feMerge>
+                    <feMergeNode in="wideGlow" />
+                    <feMergeNode in="softGlow" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+              <text class="title-glow" x="360" y="30">BSL AVATAR</text>
+              <text class="title-edge" x="360" y="30">BSL AVATAR</text>
+              <text class="title-fill" x="360" y="30">BSL AVATAR</text>
+            </svg>
+          </div>
 
           <div class="camera">
             <video id="camera-video" autoplay playsinline muted></video>
@@ -319,17 +541,19 @@
           </div>
 
           <div class="input-row">
-            <input id="text-input" type="text" placeholder="Enter text to send..." autocomplete="off" />
-            <button id="send-text-btn">Send</button>
+            <textarea id="text-input" placeholder="Enter text to send..." autocomplete="off"></textarea>
+            <button id="send-text-btn" type="button" aria-label="Send text">
+              <img src="/static/src/send.png" alt="" />
+            </button>
           </div>
         </div>
 
-        <div class="card">
+        <div class="card beta-only">
           <div class="label">状态</div>
           <div id="camera-status" class="value">前端界面已启动</div>
         </div>
 
-        <div class="card">
+        <div class="card beta-only">
           <div class="label">调试日志</div>
           <div id="debug-log" class="value">Waiting for logs...</div>
         </div>
@@ -338,6 +562,13 @@
   </div>
 
   <script>
+    const IS_BETA = false;
+    const appEl = document.querySelector(".app");
+    if (appEl) {
+      appEl.classList.toggle("beta-mode", IS_BETA);
+      appEl.classList.toggle("release-mode", !IS_BETA);
+    }
+
     const debugLogEl = document.getElementById("debug-log");
 
     function logDebug(...args) {
@@ -358,7 +589,9 @@
       }
     }
 
-    debugLogEl.textContent = "index.html loaded";
+    if (debugLogEl) {
+      debugLogEl.textContent = "index.html loaded";
+    }
     logDebug("index.html loaded");
     logDebug("href =", window.location.href);
 
@@ -529,7 +762,7 @@
     logDebug("THREE.GLTFLoader exists =", !!(window.THREE && window.THREE.GLTFLoader));
   </script>
 
-  <script type="module" src="/camera.js"></script>
+  <script type="module" src="/camera.js?v=camera-only-20260624"></script>
   <script>
     logDebug("camera.js module tag added");
   </script>
@@ -539,7 +772,7 @@
     logDebug("text_input.js module tag added");
   </script>
 
-  <script type="module" src="/avatar.js"></script>
+  <script type="module" src="/avatar.js?v=no-end-hook-20260624"></script>
   <script>
     logDebug("avatar.js module tag added");
   </script>
