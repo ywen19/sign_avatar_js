@@ -18,6 +18,8 @@ IDENTITY_REPLY = (
     "I'm an AI text-based model. I can provide information and answer questions with BSL and texts."
 )
 
+SIGN_LANGUAGE_SCOPE_REPLY = "For now, I only support BSL."
+
 
 class SmolLMService:
     _instance = None
@@ -221,7 +223,42 @@ class SmolLMService:
         result = self.tokenizer.decode(output_ids, skip_special_tokens=True).strip()
         return result
 
+    def is_sign_language_scope_question(self, user_prompt: str) -> bool:
+        prompt = user_prompt.lower()
+
+        mentions_sign_language = (
+            "sign language" in prompt
+            or "bsl" in prompt
+            or "british sign language" in prompt
+        )
+        asks_knowledge_or_scope = any(
+            phrase in prompt
+            for phrase in (
+                "what sign language",
+                "which sign language",
+                "what signed language",
+                "which signed language",
+                "do you know",
+                "can you do",
+                "can you understand",
+                "can you use",
+                "besides british sign language",
+                "beside british sign language",
+                "besides bsl",
+                "beside bsl",
+                "other than british sign language",
+                "other than bsl",
+                "apart from british sign language",
+                "apart from bsl",
+            )
+        )
+
+        return mentions_sign_language and asks_knowledge_or_scope
+
     def get_response(self, user_prompt: str, conversation_history=None) -> str:
+        if self.is_sign_language_scope_question(user_prompt):
+            return SIGN_LANGUAGE_SCOPE_REPLY
+
         label = self.classify_question_type(user_prompt)
 
         if label.startswith("IDENTITY"):

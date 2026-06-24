@@ -1,9 +1,8 @@
 const videoEl = document.getElementById('camera-video');
 const cameraEl = document.querySelector('.camera');
-const startBtn = document.getElementById('start-camera-btn');
-const stopBtn = document.getElementById('stop-camera-btn');
+const toggleBtn = document.getElementById('camera-toggle-btn');
+const toggleIcon = document.getElementById('camera-toggle-icon');
 const statusEl = document.getElementById('camera-status');
-const buttonsEl = document.querySelector('.buttons');
 
 let stream = null;
 
@@ -13,14 +12,25 @@ function setStatus(message) {
   }
 }
 
+function updateToggleIcon(isHovering = false) {
+  if (!toggleIcon) return;
+
+  const isActive = Boolean(stream);
+  toggleIcon.src = isHovering
+    ? (isActive ? '/static/src/video_off.png' : '/static/src/video_on.png')
+    : (isActive ? '/static/src/video_on.png' : '/static/src/video_off.png');
+}
+
 function setCameraActive(isActive) {
   if (cameraEl) {
     cameraEl.classList.toggle('camera-active', isActive);
   }
 
-  if (buttonsEl) {
-    buttonsEl.classList.toggle('camera-running', isActive);
+  if (toggleBtn) {
+    toggleBtn.setAttribute('aria-label', isActive ? 'Turn camera off' : 'Turn camera on');
   }
+
+  updateToggleIcon(false);
 }
 
 async function startCamera() {
@@ -62,8 +72,23 @@ async function stopCamera() {
   setStatus('Camera stopped.');
 }
 
-startBtn.addEventListener('click', startCamera);
-stopBtn.addEventListener('click', stopCamera);
+async function toggleCamera() {
+  if (stream) {
+    await stopCamera();
+  } else {
+    await startCamera();
+  }
+}
+
+if (toggleBtn) {
+  toggleBtn.addEventListener('mouseenter', () => updateToggleIcon(true));
+  toggleBtn.addEventListener('mouseleave', () => updateToggleIcon(false));
+  toggleBtn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    toggleCamera();
+  });
+}
+
 window.addEventListener('beforeunload', () => {
   if (stream) {
     stream.getTracks().forEach((track) => track.stop());

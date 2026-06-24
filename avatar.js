@@ -39,7 +39,7 @@ function init() {
   }
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x202020);
+  scene.background = null;
 
   const width = stageEl.clientWidth || 800;
   const height = stageEl.clientHeight || 600;
@@ -48,10 +48,11 @@ function init() {
   camera.position.set(0, 8.0, 23.0);
   camera.lookAt(0, 8.0, 0);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(width, height);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.setClearAlpha(0);
 
   stageEl.appendChild(renderer.domElement);
 
