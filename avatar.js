@@ -30,6 +30,15 @@ function log(...args) {
   console.log("[AVATAR]", ...args);
 }
 
+function applyFixedAvatarCamera() {
+  if (!camera) return;
+
+  const target = new THREE.Vector3(0, 13.1, 0);
+  const distance = 16.2;
+  camera.position.set(target.x, target.y, target.z + distance);
+  camera.lookAt(target);
+}
+
 function init() {
   log("stageEl =", stageEl);
 
@@ -44,7 +53,7 @@ function init() {
   const width = stageEl.clientWidth || 800;
   const height = stageEl.clientHeight || 600;
 
-  camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+  camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
   camera.position.set(0, 8.0, 23.0);
   camera.lookAt(0, 8.0, 0);
 
@@ -55,6 +64,7 @@ function init() {
   renderer.setClearAlpha(0);
 
   stageEl.appendChild(renderer.domElement);
+  applyFixedAvatarCamera();
 
   const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
   scene.add(hemi);
@@ -115,6 +125,10 @@ function prepareLoadedAvatar(gltf) {
   nextAvatar.position.sub(center);
 
   nextAvatar.traverse((obj) => {
+    if (obj.isMesh || obj.isSkinnedMesh) {
+      obj.frustumCulled = false;
+    }
+
     if (obj.isSkinnedMesh && !nextSkeleton) {
       nextSkeleton = obj.skeleton;
     }
@@ -137,6 +151,8 @@ function installLoadedAvatar(nextAvatar, nextSkeleton) {
   if (avatar.parent !== scene) {
     scene.add(avatar);
   }
+
+  applyFixedAvatarCamera();
 
   if (!skeleton) {
     console.warn("No skeleton found!");
