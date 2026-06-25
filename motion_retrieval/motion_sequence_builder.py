@@ -4,7 +4,7 @@ import json
 
 
 # Current raw SMPL-X NPZ motion data root
-SMPL_DATA_ROOT = Path("/media/ywen/AT800/smpl_data")
+SMPL_DATA_ROOT = Path("/home/ywen/Desktop/smpl_data_threejs/")
 
 # temp json file paths following the order of a sentence example
 # this is used for scripting motion concatenation
@@ -248,7 +248,7 @@ def build_concatenated_motion_json(
 
 if __name__ == "__main__":
     build_concatenated_motion_json(
-        temp_json_paths,
+        SMPL_DATA_ROOT,
         interpolation_frames=1,
         output_path="motion.json",
     )

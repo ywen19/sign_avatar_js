@@ -27,7 +27,7 @@ TRIM_TO_MESSAGES = 6
 history_store = ChatHistoryStore("chat_history.jsonl")
 
 loader = TestAnimLoader(
-    default_json="vocabs/art_gallery_0_threejs.json"
+    default_json="tmp/default_motion.json"
 )
 
 def process_answer_text(answer_text: str):

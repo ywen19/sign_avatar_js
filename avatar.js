@@ -13,7 +13,9 @@ let currentModelUrl = null;
 let modelLoadRequestId = 0;
 
 const DEFAULT_MODEL_URL = "/models/woman.glb";
+const DEMO_MATERIAL_FIX_MODEL_URLS = new Set(["/models/man.glb", "/models/woman.glb"]);
 const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model";
+const ANIMATION_LOOP_PAUSE_SECONDS = 3.0;
 const modelAssetCache = new Map();
 const modelAssetPromises = new Map();
 let avatarManifestPromise = null;
@@ -61,17 +63,29 @@ function init() {
   renderer.setSize(width, height);
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.outputEncoding = THREE.sRGBEncoding;
+  if (THREE.ACESFilmicToneMapping !== undefined) {
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.78;
+  }
   renderer.setClearAlpha(0);
 
   stageEl.appendChild(renderer.domElement);
   applyFixedAvatarCamera();
 
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+  const hemi = new THREE.HemisphereLight(0xf6fbff, 0xb9d8df, 0.78);
   scene.add(hemi);
 
-  const dirLight = new THREE.DirectionalLight(0xffffff, 2);
-  dirLight.position.set(5, 10, 5);
-  scene.add(dirLight);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.18);
+  keyLight.position.set(7, 4, 8);
+  scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0xdceffc, 0.12);
+  fillLight.position.set(-6, 5, 6);
+  scene.add(fillLight);
+
+  const rimLight = new THREE.DirectionalLight(0xb9d8df, 0.24);
+  rimLight.position.set(5, 6, -5);
+  scene.add(rimLight);
 
   window.addEventListener("resize", onWindowResize);
 }
@@ -107,7 +121,92 @@ function rememberCurrentAvatarModel() {
   }
 }
 
-function prepareLoadedAvatar(gltf) {
+function applyProductionPBRMaterialDefaults(material) {
+  if (!material) return;
+
+  // Production GLBs from the outsourcing team should use the standard PBR path.
+  // Keep base color, bump/normal, alpha, and roughness maps intact here.
+  if (material.envMapIntensity !== undefined) {
+    material.envMapIntensity = 1;
+  }
+
+  material.needsUpdate = true;
+}
+
+function applyTemporaryDemoGLBMaterialFixes(material) {
+  if (!material) return;
+
+  // TODO: Remove this function when the final outsourced avatar models arrive.
+  // The current demo GLBs contain KHR_materials_specular with specularColorFactor [2, 2, 2]
+  // and a texture named "Glossiness" wired into glTF's metallicRoughnessTexture slot.
+  // In Three.js, roughness is multiplied by the green channel of roughnessMap, and these
+  // files have very low green-channel values, so the clothes render with strong baked shine
+  // even when material.roughness is set high. These overrides are intentionally limited to
+  // /models/man.glb and /models/woman.glb so final PBR assets can keep their proper maps.
+  if (material.roughness !== undefined) {
+    material.roughness = 0.58;
+  }
+
+  if (material.metalness !== undefined) {
+    material.metalness = 0;
+  }
+
+  if (material.roughnessMap !== undefined) {
+    material.roughnessMap = null;
+  }
+
+  if (material.metalnessMap !== undefined) {
+    material.metalnessMap = null;
+  }
+
+  if (material.specularMap !== undefined) {
+    material.specularMap = null;
+  }
+
+  if (material.specularColorMap !== undefined) {
+    material.specularColorMap = null;
+  }
+
+  if (material.envMapIntensity !== undefined) {
+    material.envMapIntensity = 0.28;
+  }
+
+  if (material.clearcoat !== undefined) {
+    material.clearcoat = 0;
+  }
+
+  if (material.clearcoatRoughness !== undefined) {
+    material.clearcoatRoughness = 1;
+  }
+
+  if (material.reflectivity !== undefined) {
+    material.reflectivity = 0.22;
+  }
+
+  if (material.specularIntensity !== undefined) {
+    material.specularIntensity = 0.62;
+  }
+
+  if (material.specularColor && material.specularColor.set) {
+    material.specularColor.set(0xdceffc);
+  }
+
+  if (material.shininess !== undefined) {
+    material.shininess = 26;
+  }
+
+  material.needsUpdate = true;
+}
+
+function applyAvatarMaterialProfile(material, modelUrl) {
+  applyProductionPBRMaterialDefaults(material);
+
+  if (DEMO_MATERIAL_FIX_MODEL_URLS.has(modelUrl)) {
+    applyTemporaryDemoGLBMaterialFixes(material);
+  }
+}
+
+function prepareLoadedAvatar(gltf, modelUrl) {
   const nextAvatar = gltf.scene;
   let nextSkeleton = null;
 
@@ -127,6 +226,9 @@ function prepareLoadedAvatar(gltf) {
   nextAvatar.traverse((obj) => {
     if (obj.isMesh || obj.isSkinnedMesh) {
       obj.frustumCulled = false;
+
+      const materials = Array.isArray(obj.material) ? obj.material : [obj.material];
+      materials.forEach((material) => applyAvatarMaterialProfile(material, modelUrl));
     }
 
     if (obj.isSkinnedMesh && !nextSkeleton) {
@@ -183,7 +285,7 @@ function loadAvatarAsset(url) {
     loader.load(
       modelUrl,
       function (gltf) {
-        const asset = prepareLoadedAvatar(gltf);
+        const asset = prepareLoadedAvatar(gltf, modelUrl);
         modelAssetCache.set(modelUrl, asset);
         modelAssetPromises.delete(modelUrl);
         log("Avatar asset cached:", modelUrl);
@@ -405,7 +507,19 @@ function updateAnimation(dt) {
   updateAnimation.time += dt;
 
   const totalFrames = maxFrame + 1;
-  const currentFrame = Math.floor((updateAnimation.time * fps) % totalFrames);
+  const animationDuration = totalFrames / fps;
+  const loopDuration = animationDuration + ANIMATION_LOOP_PAUSE_SECONDS;
+  const loopTime = updateAnimation.time % loopDuration;
+
+  if (loopTime >= animationDuration) {
+    applyPoseFrame(maxFrame);
+    return;
+  }
+
+  const currentFrame = Math.min(
+    Math.floor(loopTime * fps),
+    maxFrame
+  );
 
   applyPoseFrame(currentFrame);
 }

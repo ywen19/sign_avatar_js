@@ -93,6 +93,6 @@ class TestAnimLoader:
     def get_default_payload(self):
         return self.load_payload(
             self.default_json,
-            animation_name="dance",
+            animation_name="default_motion",
             camera_state="start",
         )

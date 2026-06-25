@@ -15,7 +15,7 @@ DEFAULT_SYSTEM_PROMPT = (
 )
 
 IDENTITY_REPLY = (
-    "I'm an AI text-based model. I can provide information and answer questions with BSL and texts."
+    "I'm an AI text-based model. I can provide information and answer questions with BSL and text."
 )
 
 SIGN_LANGUAGE_SCOPE_REPLY = "For now, I only support BSL."
