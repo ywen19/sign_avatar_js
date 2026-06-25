@@ -33,6 +33,10 @@ async function handleTextSubmit() {
 
   try {
     setStatus("Sending text...");
+    if (window.pauseAnimationPlayback) {
+      window.pauseAnimationPlayback();
+    }
+
     const result = await sendTextToBackend(text);
     console.log("[TEXT_INPUT] backend response:", {
       ok: result.ok,

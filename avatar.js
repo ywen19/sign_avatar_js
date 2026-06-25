@@ -11,6 +11,8 @@ let currentAnimationName = null;
 let currentAnimationPayload = null;
 let currentModelUrl = null;
 let modelLoadRequestId = 0;
+let isAnimationPlaying = true;
+let isLoopEnabled = false;
 
 const DEFAULT_MODEL_URL = "/models/woman.glb";
 const DEMO_MATERIAL_FIX_MODEL_URLS = new Set(["/models/man.glb", "/models/woman.glb"]);
@@ -437,9 +439,54 @@ function applyPoseFrame(frame) {
   avatar.updateMatrixWorld(true);
 }
 
-function resetAnimationPlayback() {
+function playAnimationFromStart() {
   updateAnimation.time = 0;
+  isAnimationPlaying = true;
   applyPoseFrame(0);
+}
+
+function pauseAnimationPlayback() {
+  isAnimationPlaying = false;
+}
+
+function resetAnimationPlayback() {
+  playAnimationFromStart();
+}
+
+function setAnimationLoopEnabled(enabled) {
+  const nextLoopEnabled = Boolean(enabled);
+  const wasLoopEnabled = isLoopEnabled;
+  isLoopEnabled = nextLoopEnabled;
+
+  if (maxFrame) {
+    const totalFrames = maxFrame + 1;
+    const animationDuration = totalFrames / fps;
+    const loopDuration = animationDuration + ANIMATION_LOOP_PAUSE_SECONDS;
+
+    if (!isLoopEnabled && wasLoopEnabled && updateAnimation.time !== undefined) {
+      const loopTime = updateAnimation.time % loopDuration;
+      updateAnimation.time = loopTime < animationDuration ? loopTime : 0;
+      isAnimationPlaying = true;
+
+      if (loopTime >= animationDuration) {
+        applyPoseFrame(0);
+      }
+    }
+
+    if (isLoopEnabled && !isAnimationPlaying) {
+      isAnimationPlaying = true;
+
+      if (updateAnimation.time === undefined || updateAnimation.time < animationDuration) {
+        updateAnimation.time = animationDuration;
+      }
+    }
+  }
+
+  return isLoopEnabled;
+}
+
+function getAnimationLoopEnabled() {
+  return isLoopEnabled;
 }
 
 function applyAnimationPayload(payload) {
@@ -466,7 +513,7 @@ function applyAnimationPayload(payload) {
 
   preparePoseFrames(framesData);
 
-  resetAnimationPlayback();
+  playAnimationFromStart();
 
   log("Animation applied:", currentAnimationName);
 }
@@ -505,13 +552,20 @@ async function fetchEndAnimationFromBackend() {
 }
 
 function updateAnimation(dt) {
-  if (!avatar || !skeleton || !maxFrame) return;
+  if (!avatar || !skeleton || !maxFrame || !isAnimationPlaying) return;
 
   if (updateAnimation.time === undefined) updateAnimation.time = 0;
   updateAnimation.time += dt;
 
   const totalFrames = maxFrame + 1;
   const animationDuration = totalFrames / fps;
+
+  if (!isLoopEnabled && updateAnimation.time >= animationDuration) {
+    applyPoseFrame(maxFrame);
+    isAnimationPlaying = false;
+    return;
+  }
+
   const loopDuration = animationDuration + ANIMATION_LOOP_PAUSE_SECONDS;
   const loopTime = updateAnimation.time % loopDuration;
 
@@ -555,6 +609,10 @@ window.switchAvatarModel = async function (modelUrl) {
 };
 
 window.resetAnimationPlayback = resetAnimationPlayback;
+window.playAnimationFromStart = playAnimationFromStart;
+window.pauseAnimationPlayback = pauseAnimationPlayback;
+window.setAnimationLoopEnabled = setAnimationLoopEnabled;
+window.getAnimationLoopEnabled = getAnimationLoopEnabled;
 window.applyAvatarAnimationPayload = applyAnimationPayload;
 window.loadAvatarAnimationFromJson = function (animationName, framesData) {
   applyAnimationPayload({

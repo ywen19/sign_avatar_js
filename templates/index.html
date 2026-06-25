@@ -69,11 +69,18 @@
       display: block;
     }
 
-    .avatar-toolbar {
+    .avatar-controls {
       position: absolute;
       top: 14px;
       left: 14px;
       z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .avatar-toolbar {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -97,6 +104,123 @@
       background: #B9D8DF;
       border-width: 2px;
       border-color: #4583E6;
+    }
+
+    .loop-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #111827;
+      font-size: 14px;
+      font-weight: 600;
+      user-select: none;
+      cursor: pointer;
+      padding: 4px 10px 4px 4px;
+      border: 1px solid rgba(101, 154, 211, 0.55);
+      border-radius: 10px;
+      background: rgba(220, 239, 252, 0.82);
+      box-shadow: 0 8px 20px rgba(0, 4, 7, 0.14);
+      backdrop-filter: blur(8px);
+    }
+
+    .ui-checkbox {
+      --primary-color: #1677ff;
+      --secondary-color: #fff;
+      --primary-hover-color: #4096ff;
+      --checkbox-diameter: 20px;
+      --checkbox-border-radius: 5px;
+      --checkbox-border-color: #d9d9d9;
+      --checkbox-border-width: 1px;
+      --checkbox-border-style: solid;
+      --checkmark-size: 1.2;
+    }
+
+    .ui-checkbox,
+    .ui-checkbox *,
+    .ui-checkbox *::before,
+    .ui-checkbox *::after {
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+    }
+
+    .ui-checkbox {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      width: var(--checkbox-diameter);
+      height: var(--checkbox-diameter);
+      border-radius: var(--checkbox-border-radius);
+      background: var(--secondary-color);
+      border: var(--checkbox-border-width) var(--checkbox-border-style) var(--checkbox-border-color);
+      -webkit-transition: all 0.3s;
+      -o-transition: all 0.3s;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+      flex: 0 0 var(--checkbox-diameter);
+      margin: 0;
+    }
+
+    .ui-checkbox::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      -webkit-box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
+      box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
+      border-radius: inherit;
+      opacity: 0;
+      -webkit-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+      -o-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+      transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    }
+
+    .ui-checkbox::before {
+      top: 40%;
+      left: 50%;
+      content: "";
+      position: absolute;
+      width: 4px;
+      height: 7px;
+      border-right: 2px solid var(--secondary-color);
+      border-bottom: 2px solid var(--secondary-color);
+      -webkit-transform: translate(-50%, -50%) rotate(45deg) scale(0);
+      -ms-transform: translate(-50%, -50%) rotate(45deg) scale(0);
+      transform: translate(-50%, -50%) rotate(45deg) scale(0);
+      opacity: 0;
+      -webkit-transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6),opacity 0.1s;
+      -o-transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6),opacity 0.1s;
+      transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6),opacity 0.1s;
+    }
+
+    .ui-checkbox:hover {
+      border-color: var(--primary-color);
+    }
+
+    .ui-checkbox:checked {
+      background: var(--primary-color);
+      border-color: transparent;
+    }
+
+    .ui-checkbox:checked::before {
+      opacity: 1;
+      -webkit-transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
+      -ms-transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
+      transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
+      -webkit-transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+      -o-transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+      transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+    }
+
+    .ui-checkbox:active:not(:checked)::after {
+      -webkit-transition: none;
+      -o-transition: none;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+      transition: none;
+      opacity: 1;
     }
 
 
@@ -530,9 +654,15 @@
       <div class="main">
         <div class="panel stage">
           <div id="avatar-stage">
-            <div class="avatar-toolbar">
-              <button id="avatar-picker-btn" type="button">Avatar</button>
-              <button id="avatar-replay-btn" type="button">Replay</button>
+            <div class="avatar-controls">
+              <div class="avatar-toolbar">
+                <button id="avatar-picker-btn" type="button">Avatar</button>
+                <button id="avatar-replay-btn" type="button">Replay</button>
+              </div>
+              <label class="loop-control" for="avatar-loop-btn">
+                <input id="avatar-loop-btn" class="ui-checkbox" type="checkbox" aria-label="Loop Play">
+                <span>Loop Play</span>
+              </label>
             </div>
             <div id="avatar-popover" class="avatar-popover" aria-hidden="true"></div>
           </div>
@@ -633,6 +763,7 @@
 
     const avatarPickerBtn = document.getElementById("avatar-picker-btn");
     const avatarReplayBtn = document.getElementById("avatar-replay-btn");
+    const avatarLoopBtn = document.getElementById("avatar-loop-btn");
     const avatarPopover = document.getElementById("avatar-popover");
     const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model";
 
@@ -773,6 +904,30 @@
       });
     }
 
+    function syncLoopButtonState() {
+      if (!avatarLoopBtn) return;
+
+      const enabled = window.getAnimationLoopEnabled ? window.getAnimationLoopEnabled() : false;
+      avatarLoopBtn.checked = enabled;
+    }
+
+    if (avatarLoopBtn) {
+      avatarLoopBtn.addEventListener("change", (event) => {
+        event.stopPropagation();
+        setAvatarPopoverOpen(false);
+
+        if (window.setAnimationLoopEnabled) {
+          const enabled = window.setAnimationLoopEnabled(avatarLoopBtn.checked);
+          syncLoopButtonState();
+          logDebug("avatar loop enabled =", enabled);
+        } else {
+          logDebug("avatar loop toggle failed = loop API is not ready");
+        }
+      });
+
+      syncLoopButtonState();
+    }
+
     window.addEventListener("error", (e) => {
       logDebug("window error:", e.message, "@", e.filename + ":" + e.lineno);
     });
@@ -802,12 +957,12 @@
     logDebug("camera.js module tag added");
   </script>
 
-  <script type="module" src="/text_input.js?v=light-logs-20260625"></script>
+  <script type="module" src="/text_input.js?v=loop-toggle-live-20260625"></script>
   <script>
     logDebug("text_input.js module tag added");
   </script>
 
-  <script type="module" src="/avatar.js?v=light-logs-20260625"></script>
+  <script type="module" src="/avatar.js?v=loop-toggle-live-20260625"></script>
   <script>
     logDebug("avatar.js module tag added");
   </script>
