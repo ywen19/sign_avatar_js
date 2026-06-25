@@ -1,5 +1,5 @@
 from language_utils import *
-from motion_retrieval import retrieve_npz_paths
+from motion_retrieval import retrieve_json_paths
 
 MAX_HISTORY_MESSAGES = 15
 TRIM_TO_MESSAGES = 6
@@ -76,18 +76,18 @@ def print_pipeline_debug(debug_data: dict):
 
     print("----------------------\n")
 
-def print_npz_paths(debug_data: dict):
-    print("\n[NPZ PATHS]")
+def print_json_paths(debug_data: dict):
+    print("\n[JSON PATHS]")
 
     for sentence_idx, reordered_tokens in enumerate(debug_data["reordered_tokens"], 1):
-        npz_paths = retrieve_npz_paths(reordered_tokens)
+        json_paths = retrieve_json_paths(reordered_tokens)
 
         print(f"\nSentence {sentence_idx}:")
-        for token, npz_path in zip(reordered_tokens, npz_paths):
-            if npz_path is None:
+        for token, json_path in zip(reordered_tokens, json_paths):
+            if json_path is None:
                 print(f"[MISSING] {token}")
             else:
-                print(f"[FOUND]   {token} -> {npz_path}")
+                print(f"[FOUND]   {token} -> {json_path}")
 
     print()
 
@@ -166,7 +166,7 @@ def main():
 
             debug_data = process_answer_text(answer_text)
             print_pipeline_debug(debug_data)
-            print_npz_paths(debug_data)
+            print_json_paths(debug_data)
 
             user_message = {
                 "role": "user",

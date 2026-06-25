@@ -6,6 +6,16 @@ import json
 # Current raw SMPL-X NPZ motion data root
 SMPL_DATA_ROOT = Path("/home/ywen/Desktop/smpl_data_threejs/")
 
+# Keep the avatar root orientation stable across concatenated vocab clips.
+# The converted motion clips carry a skeleton-coordinate offset on the hips; using
+# mathematical identity ([0, 0, 0, 1]) makes the model lie/fold incorrectly.
+FIXED_HIP_ROTATION = [
+    0.7193659472722247,
+    0.00006376511902153256,
+    -0.012867924020065152,
+    -0.6945120923141355,
+]
+
 # temp json file paths following the order of a sentence example
 # this is used for scripting motion concatenation
 # remove this later once we finished the axis 2 angle conversion
@@ -27,22 +37,22 @@ temp_json_paths = [
 ]
 
 
-# todo: rename below function to json paths later 
-# once we finished the axis 2 angle conversion
-def retrieve_npz_paths(tokens: Iterable[str]) -> List[Optional[Path]]:
-    npz_paths: List[Optional[Path]] = []
+def retrieve_json_paths(tokens: Iterable[str]) -> List[Optional[Path]]:
+    json_paths: List[Optional[Path]] = []
 
     for token in tokens:
         vocab_name = token.strip().lower().replace(" ", "_")
+        json_path = SMPL_DATA_ROOT / vocab_name / f"{vocab_name}_0.json"
 
-        npz_path = SMPL_DATA_ROOT / vocab_name / f"{vocab_name}_0.npz"
+        json_paths.append(json_path if json_path.exists() else None)
 
-        # Final version after conversion preprocess:
-        # json_path = SMPL_DATA_ROOT / vocab_name / f"{vocab_name}_0.json"
+    return json_paths
 
-        npz_paths.append(npz_path if npz_path.exists() else None)
 
-    return npz_paths
+def retrieve_npz_paths(tokens: Iterable[str]) -> List[Optional[Path]]:
+    # Backward-compatible alias for older debug code/imports.
+    # The frontend motion pipeline now consumes converted Three.js JSON files.
+    return retrieve_json_paths(tokens)
 
 
 def normalize_rotation(rot):
@@ -63,6 +73,21 @@ def interpolate_rotation(rot_a, rot_b, t):
     ]
 
     return normalize_rotation(rot)
+
+
+def normalize_bone_name(bone_name):
+    return str(bone_name).strip().lower().replace("mixamorig:", "")
+
+
+def is_hip_bone(bone_name):
+    return normalize_bone_name(bone_name) == "hips"
+
+
+def get_output_rotation(bone_name, source_rotation):
+    if is_hip_bone(bone_name):
+        return list(FIXED_HIP_ROTATION)
+
+    return source_rotation
 
 
 def load_motion_json(json_path):
@@ -115,7 +140,8 @@ def append_clip_to_output(output_json, motion_json, bone_names, frame_counter):
 
     for local_frame_idx in range(num_frames):
         for bone_name in bone_names:
-            rotation = motion_json[bone_name][local_frame_idx]["rotation"]
+            source_rotation = motion_json[bone_name][local_frame_idx]["rotation"]
+            rotation = get_output_rotation(bone_name, source_rotation)
 
             output_json[bone_name].append(
                 {
@@ -151,14 +177,17 @@ def append_interpolation_to_output(
         t = interp_idx / (interpolation_frames + 1)
 
         for bone_name in bone_names:
-            prev_rotation = prev_motion[bone_name][-1]["rotation"]
-            next_rotation = next_motion[bone_name][0]["rotation"]
+            if is_hip_bone(bone_name):
+                interp_rotation = list(FIXED_HIP_ROTATION)
+            else:
+                prev_rotation = prev_motion[bone_name][-1]["rotation"]
+                next_rotation = next_motion[bone_name][0]["rotation"]
 
-            interp_rotation = interpolate_rotation(
-                prev_rotation,
-                next_rotation,
-                t,
-            )
+                interp_rotation = interpolate_rotation(
+                    prev_rotation,
+                    next_rotation,
+                    t,
+                )
 
             output_json[bone_name].append(
                 {

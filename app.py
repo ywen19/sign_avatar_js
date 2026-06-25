@@ -13,7 +13,7 @@ import atexit
 
 from switch_anim import TestAnimLoader
 from language_utils import *
-from motion_retrieval import retrieve_npz_paths
+from motion_retrieval import retrieve_json_paths
 
 
 PORT = 8000
@@ -87,18 +87,18 @@ def print_pipeline_debug(debug_data: dict):
     print("----------------------\n")
 
 
-def print_npz_paths(debug_data: dict):
-    print("\n[NPZ PATHS]")
+def print_json_paths(debug_data: dict):
+    print("\n[JSON PATHS]")
 
     for sentence_idx, traced_tokens in enumerate(debug_data["traced_tokens"], 1):
-        npz_paths = retrieve_npz_paths(traced_tokens)
+        json_paths = retrieve_json_paths(traced_tokens)
 
         print(f"\nSentence {sentence_idx}:")
-        for token, npz_path in zip(traced_tokens, npz_paths):
-            if npz_path is None:
+        for token, json_path in zip(traced_tokens, json_paths):
+            if json_path is None:
                 print(f"[MISSING] {token}")
             else:
-                print(f"[FOUND]   {token} -> {npz_path}")
+                print(f"[FOUND]   {token} -> {json_path}")
 
     print()
 
@@ -219,7 +219,7 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
 
                 debug_data = process_answer_text(latest_llm_answer)
                 print_pipeline_debug(debug_data)
-                print_npz_paths(debug_data)
+                print_json_paths(debug_data)
 
                 # chat history management
                 user_message = {
