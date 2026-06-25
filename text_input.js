@@ -34,10 +34,26 @@ async function handleTextSubmit() {
   try {
     setStatus("Sending text...");
     const result = await sendTextToBackend(text);
-    console.log("[TEXT_INPUT] backend response:", result);
+    console.log("[TEXT_INPUT] backend response:", {
+      ok: result.ok,
+      animation: result.animation,
+      tracedTokenCount: result.traced_tokens ? result.traced_tokens.length : 0,
+      missingMotionTokenCount: result.missing_motion_tokens ? result.missing_motion_tokens.length : 0,
+    });
 
     if (subtitleOutput && result.answer_text) {
       subtitleOutput.textContent = result.answer_text;
+    }
+
+    if (result.frames && window.loadAvatarAnimationFromJson) {
+      window.loadAvatarAnimationFromJson(
+        result.animation || "answer_motion",
+        result.frames
+      );
+    }
+
+    if (result.missing_motion_tokens && result.missing_motion_tokens.length) {
+      console.warn("[TEXT_INPUT] missing motion tokens:", result.missing_motion_tokens);
     }
 
     setStatus("SmolLM answer received");

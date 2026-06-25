@@ -13,7 +13,11 @@ import atexit
 
 from switch_anim import TestAnimLoader
 from language_utils import *
-from motion_retrieval import retrieve_json_paths
+from motion_retrieval import (
+    build_threejs_motion_from_tokens,
+    flatten_traced_tokens,
+    retrieve_json_paths,
+)
 
 
 PORT = 8000
@@ -221,6 +225,21 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
                 print_pipeline_debug(debug_data)
                 print_json_paths(debug_data)
 
+                traced_tokens = flatten_traced_tokens(debug_data["traced_tokens"])
+                motion_result = build_threejs_motion_from_tokens(
+                    traced_tokens,
+                    output_path="tmp/answer_motion.json",
+                    interpolation_frames=5,
+                    animation_name="answer_motion",
+                    source_text=latest_llm_answer,
+                )
+
+                animation_payload = loader.load_payload(
+                    "tmp/answer_motion.json",
+                    animation_name="answer_motion",
+                    camera_state="start",
+                )
+
                 # chat history management
                 user_message = {
                     "role": "user",
@@ -242,7 +261,13 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
                 self._send_json({
                     "ok": True,
                     "received_text": user_text,
-                    "answer_text": latest_llm_answer
+                    "answer_text": latest_llm_answer,
+                    "traced_tokens": traced_tokens,
+                    "missing_motion_tokens": motion_result["missing_tokens"],
+                    "motion_source": str(animation_payload["source"]),
+                    "animation": animation_payload["animation"],
+                    "camera": animation_payload["camera"],
+                    "frames": animation_payload["frames"],
                 }, status=200)
 
             except Exception as e:

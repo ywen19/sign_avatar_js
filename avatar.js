@@ -448,7 +448,11 @@ function applyAnimationPayload(payload) {
     return;
   }
 
-  log("Applying payload:", payload);
+  log("Applying animation payload:", {
+    animation: payload.animation,
+    fps: payload.frames ? payload.frames.fps : undefined,
+    boneCount: payload.frames && payload.frames.bones ? Object.keys(payload.frames.bones).length : 0,
+  });
   currentAnimationPayload = payload;
 
   const framesData = payload.frames;
@@ -551,6 +555,14 @@ window.switchAvatarModel = async function (modelUrl) {
 };
 
 window.resetAnimationPlayback = resetAnimationPlayback;
+window.applyAvatarAnimationPayload = applyAnimationPayload;
+window.loadAvatarAnimationFromJson = function (animationName, framesData) {
+  applyAnimationPayload({
+    animation: animationName,
+    camera: "start",
+    frames: framesData,
+  });
+};
 
 window.getCurrentAnimationName = function () {
   return currentAnimationName;
