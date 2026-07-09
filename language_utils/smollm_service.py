@@ -5,6 +5,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from huggingface_hub import snapshot_download
 
 MODEL_NAME = "HuggingFaceTB/SmolLM3-3B"
+MODEL_REVISION = "a07cc9a04f16550a088caea529712d1d335b0ac1"
 HF_TOKEN = None
 
 DEFAULT_SYSTEM_PROMPT = (
@@ -54,26 +55,69 @@ class SmolLMService:
         except Exception as e:
             print(f"Cleanup error: {e}")
 
+    def _missing_snapshot_files(self, local_path):
+        local_path = os.fspath(local_path)
+        index_path = os.path.join(local_path, "model.safetensors.index.json")
+
+        if not os.path.exists(index_path):
+            return []
+
+        try:
+            import json
+
+            with open(index_path, "r", encoding="utf-8") as f:
+                index_data = json.load(f)
+        except Exception as e:
+            print(f"Could not validate model index: {e}")
+            return []
+
+        required_files = set(index_data.get("weight_map", {}).values())
+        return [
+            file_name
+            for file_name in sorted(required_files)
+            if not os.path.exists(os.path.join(local_path, file_name))
+        ]
+
     def get_local_model_path(self, model_name: str, hf_token: str = None):
         try:
             local_path = snapshot_download(
                 repo_id=model_name,
+                revision=MODEL_REVISION,
                 local_files_only=True
             )
-            print(f"Model found in local cache: {local_path}")
-            return local_path, True
+            missing_files = self._missing_snapshot_files(local_path)
+
+            if not missing_files:
+                print(f"Model found in local cache: {local_path}")
+                return local_path, True
+
+            print("Local model cache is incomplete. Missing files:")
+            for file_name in missing_files:
+                print(f"- {file_name}")
+            print("Downloading missing model files from Hugging Face...")
         except Exception:
             print("Model not found in local cache. Downloading from Hugging Face...")
 
-            if hf_token:
-                os.environ["HF_TOKEN"] = hf_token
+        if hf_token:
+            os.environ["HF_TOKEN"] = hf_token
 
-            local_path = snapshot_download(
-                repo_id=model_name,
-                local_files_only=False
+        os.environ.pop("HF_HUB_OFFLINE", None)
+
+        local_path = snapshot_download(
+            repo_id=model_name,
+            revision=MODEL_REVISION,
+            local_files_only=False
+        )
+
+        missing_files = self._missing_snapshot_files(local_path)
+        if missing_files:
+            missing = ", ".join(missing_files)
+            raise FileNotFoundError(
+                f"Model download/cache is still incomplete. Missing: {missing}"
             )
-            print(f"Model downloaded to local cache: {local_path}")
-            return local_path, False
+
+        print(f"Model downloaded to local cache: {local_path}")
+        return local_path, False
 
     def load_model(self):
         if self.model is not None and self.tokenizer is not None:
