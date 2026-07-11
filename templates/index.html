@@ -1,4 +1,10 @@
 <!doctype html>
+<!--
+  Defines the frontend page structure for the BSL Avatar application,
+  including the avatar display, avatar controls, camera preview, text input,
+  subtitles, and diagnostic panels. Visual styling is provided by style.css,
+  while interaction and animation behavior is provided by the loaded scripts.
+-->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -149,33 +155,10 @@
   <script src="/static/js/ui.js?v=20260712"></script>
 
   <script src="/js/three.min.js"></script>
-  <script>
-    logDebug("three.min.js tag executed");
-    logDebug("window.THREE exists =", !!window.THREE);
-    if (window.THREE) {
-      logDebug("THREE.REVISION =", window.THREE.REVISION);
-    }
-  </script>
-
   <script src="/js/GLTFLoader.js"></script>
-  <script>
-    logDebug("GLTFLoader.js tag executed");
-    logDebug("THREE.GLTFLoader exists =", !!(window.THREE && window.THREE.GLTFLoader));
-  </script>
-
   <script type="module" src="/camera.js?v=camera-only-20260624"></script>
-  <script>
-    logDebug("camera.js module tag added");
-  </script>
-
   <script type="module" src="/text_input.js?v=loop-toggle-live-20260625"></script>
-  <script>
-    logDebug("text_input.js module tag added");
-  </script>
-
   <script type="module" src="/avatar.js?v=loop-toggle-live-20260625"></script>
-  <script>
-    logDebug("avatar.js module tag added");
-  </script>
+  <script src="/static/js/diagnostics.js?v=20260712"></script>
 </body>
 </html>

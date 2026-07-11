@@ -2,6 +2,7 @@ const textInput = document.getElementById("text-input");
 const sendTextBtn = document.getElementById("send-text-btn");
 const cameraStatus = document.getElementById("camera-status");
 const subtitleOutput = document.getElementById("subtitle-output");
+let isSubmitting = false;
 
 function setStatus(message) {
   if (cameraStatus) {
@@ -26,10 +27,12 @@ async function sendTextToBackend(text) {
 }
 
 async function handleTextSubmit() {
-  if (!textInput) return;
+  if (!textInput || isSubmitting) return;
 
   const text = textInput.value.trim();
   if (!text) return;
+
+  isSubmitting = true;
 
   try {
     setStatus("Sending text...");
@@ -42,7 +45,9 @@ async function handleTextSubmit() {
       ok: result.ok,
       animation: result.animation,
       tracedTokenCount: result.traced_tokens ? result.traced_tokens.length : 0,
-      missingMotionTokenCount: result.missing_motion_tokens ? result.missing_motion_tokens.length : 0,
+      missingMotionTokenCount: result.missing_motion_tokens
+        ? result.missing_motion_tokens.length
+        : 0,
     });
 
     if (subtitleOutput && result.answer_text) {
@@ -65,6 +70,8 @@ async function handleTextSubmit() {
   } catch (error) {
     console.error("[TEXT_INPUT] error:", error);
     setStatus("Failed to send text");
+  } finally {
+    isSubmitting = false;
   }
 }
 
@@ -74,8 +81,11 @@ if (sendTextBtn) {
 
 if (textInput) {
   textInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      event.preventDefault();
+    if (event.key !== "Enter" || event.shiftKey) return;
+
+    event.preventDefault();
+
+    if (!event.repeat) {
       handleTextSubmit();
     }
   });
