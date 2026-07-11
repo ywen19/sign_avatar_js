@@ -1,3 +1,11 @@
+"""
+Test script module for processing llm generated answers to bsl-syntax and 
+vocab tracing.
+
+Only use this for testing without the need to start the frontend.
+"""
+
+
 from language_utils import *
 from motion_retrieval import retrieve_json_paths
 

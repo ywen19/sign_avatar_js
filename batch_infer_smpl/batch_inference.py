@@ -1,3 +1,14 @@
+"""
+Use SMPLest-X pretrained model to batch infer smpl parameters from input videos.
+Deploy SMPLest-X environment and pretrained weights following: https://github.com/MotrixLab/SMPLest-X
+The output is SMPL axis-angle rotation for body, hands, jaw and expressions.
+For expressions, the parameters are neither translation nor rotation, but weights for blendshape/PCA coefficients.
+We only have jaw and eyes as rotation parameters.
+
+The inferred smplx parameters for a video is store in .npz format.
+"""
+
+
 import argparse
 from pathlib import Path
 import json
@@ -55,6 +66,10 @@ def get_video_fps(video_path, default_fps=30.0):
 def convert_video_to_frames(
     vocab_root, subfolder_name, file_name, frame_output_dir, fps=30.0
 ):
+    """
+    Convert input video as frames, as acquired by SMPLest-X standard inference pipeline.
+    """
+
     if fps is None or fps <= 0:
         raise RuntimeError(f"Invalid FPS for {file_name}: {fps}")
 
@@ -84,6 +99,11 @@ def convert_video_to_frames(
 
 
 def reset_frame_output_dir(frame_output_dir):
+    """
+    Empty the temporary folder that stores all frames converted from a video.
+    We keep only limited temporary frame folders to avoid flushing machine storage.
+    This reset happens when all frames for a vieo are inferred for smplx parameters.
+    """
     frame_output_dir = Path(frame_output_dir)
     if frame_output_dir.exists():
         shutil.rmtree(frame_output_dir)
@@ -91,7 +111,12 @@ def reset_frame_output_dir(frame_output_dir):
 
 
 def extract_smpl_data(cfg, detector, demoer, file_name, frame_output_dir, output_npz_path, start=1, end=1):
-    # print("into extract smpl data function ... \n")
+    """
+    Actual main inference function.
+    Here we only extract for the first-detected person in the frame.
+    This has to be changed if we have more than 2 people in a frame, 
+    but for now most of the video resource is of 1 person.
+    """
     # accumulate one person across all frames
     frame_ids = []
     global_orient_list = []
@@ -115,7 +140,7 @@ def extract_smpl_data(cfg, detector, demoer, file_name, frame_output_dir, output
         vis_img = original_img.copy()
         original_img_height, original_img_width = original_img.shape[:2]
 
-        # bbox detection from yolo
+        # person bbox detection from yolo
         yolo_bbox = detector.predict(
             original_img,
             device='cuda',
@@ -139,7 +164,6 @@ def extract_smpl_data(cfg, detector, demoer, file_name, frame_output_dir, output
         yolo_bbox_xywh[1] = yolo_bbox[bbox_id][1]
         yolo_bbox_xywh[2] = abs(yolo_bbox[bbox_id][2] - yolo_bbox[bbox_id][0])
         yolo_bbox_xywh[3] = abs(yolo_bbox[bbox_id][3] - yolo_bbox[bbox_id][1])
-        # print(f"bbox info: {yolo_bbox_xywh} \n")
 
         # get the image patch for the person of the associated bbox
         bbox = process_bbox(
@@ -149,8 +173,8 @@ def extract_smpl_data(cfg, detector, demoer, file_name, frame_output_dir, output
             input_img_shape=cfg.model.input_img_shape,
             ratio=getattr(cfg.data, "bbox_ratio", 1.25
         ))
-        # print("finished process the bbox \n")
-        # print(bbox)
+
+        # crop out the patch of the person to be tracked by yolo bbox
         img, _, _ = generate_patch_image(
             cvimg=original_img,
             bbox=bbox,
@@ -162,16 +186,14 @@ def extract_smpl_data(cfg, detector, demoer, file_name, frame_output_dir, output
         img = transform(img.astype(np.float32))/255
         img = img.cuda()[None,:,:,:]
         inputs = {'img': img}
-        # print("image preprared for inference \n")
-        # print(inputs)
         targets = {}
         meta_info = {}
 
         # inference
         with torch.no_grad():
             out = demoer.model(inputs, targets, meta_info, 'test')
-        # print(out)
-        
+
+        # append detected smpl parameters for the current frame to the video global list
         frame_ids.append(np.int32(frame))
         global_orient_list.append(out['smplx_root_pose'].detach().cpu().numpy()[0].astype(np.float32))
         body_pose_list.append(out['smplx_body_pose'].detach().cpu().numpy()[0].astype(np.float32))
@@ -181,7 +203,7 @@ def extract_smpl_data(cfg, detector, demoer, file_name, frame_output_dir, output
         betas_list.append(out['smplx_shape'].detach().cpu().numpy()[0].astype(np.float32))
         expression_list.append(out['smplx_expr'].detach().cpu().numpy()[0].astype(np.float32))
 
-    # save data to npz
+    # save data to npz by frame
     np.savez_compressed(
         output_npz_path,
         frame_ids=np.asarray(frame_ids, dtype=np.int32),
@@ -199,6 +221,9 @@ def extract_smpl_data(cfg, detector, demoer, file_name, frame_output_dir, output
 def process_file(
     cfg, detector, demoer, vocab_root, subfolder_name, file_name, frame_output_dir, output_npz_path
 ):
+    """
+    Wrapper function to extract smpl data for one video.
+    """
     full_file_path = Path(vocab_root) / subfolder_name / file_name
     print(f"  Processing file: {full_file_path}")
 
@@ -223,12 +248,17 @@ def process_file(
         reset_frame_output_dir(frame_output_dir)
         raise
 
-    time.sleep(0.2)
+    time.sleep(0.2)  # safe gaurding
     extract_smpl_data(cfg, detector, demoer, file_name, frame_output_dir, output_npz_path, end=end)
-    reset_frame_output_dir(frame_output_dir)
+    # reset the temporary folder that stores frames of a video
+    # we keep limited temporary frame folders at run time to avoid flushing machine storage
+    reset_frame_output_dir(frame_output_dir) 
 
 
 def append_progress(progress_file, subfolder_name, processed_files):
+    """
+    Log video as processed.
+    """
     with open(progress_file, "a", encoding="utf-8") as f:
         json.dump({subfolder_name: processed_files}, f)
         f.write("\n")
@@ -236,6 +266,12 @@ def append_progress(progress_file, subfolder_name, processed_files):
 
 
 def append_missing(missing_file, subfolder_name, missing_files):
+    """
+    Log failed (missing) video at run time.
+    The failure run could be because of: video having no frames, 
+    smplest-x failed to detect, etc.
+    Logging them for visibility and re-run on these specific files.
+    """
     with open(missing_file, "a", encoding="utf-8") as f:
         json.dump({subfolder_name: missing_files}, f)
         f.write("\n")
@@ -243,6 +279,12 @@ def append_missing(missing_file, subfolder_name, missing_files):
 
 
 def get_resume_info(progress_file):
+    """
+    Resume information retrieved from logs, in case the batch running process is interrupted.
+    Retrieve last processed video, last processed subfolder (vocab folder).
+    This is because the running may fail at one of the video inside a subfolder,
+    not necessarily interrupted when all videos inside a sunfolder are all completed.
+    """
     progress_path = Path(progress_file)
     if not progress_path.exists():
         return set(), None, None
@@ -274,6 +316,9 @@ def process_subfolder(
     cfg, detector, demoer, vocab_root, progress_file, missing_file, subfolder_name, frame_output_dir,
     subfolder_smpl_root
 ):
+    """
+    Wrapper function to run inference on all videos inside a vocab folder.
+    """
     print(f"Processing: {subfolder_name}")
     all_files = get_all_files_in_subfolder(vocab_root, subfolder_name)
     processed_files = []
@@ -293,13 +338,16 @@ def process_subfolder(
         except Exception:
             missing_files.append(file_name)
 
+    # logging on processed videos for resume, and on missing videos for re-run
     append_progress(progress_file, subfolder_name, processed_files)
-
     if missing_files:
         append_missing(missing_file, subfolder_name, missing_files)
 
 
 def parse_args():
+    """
+    Terminal command run arguments that could be passed.
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -325,6 +373,9 @@ def parse_args():
 
 
 def main():
+    """
+    Main function for batch inference.
+    """
     args = parse_args()
 
     # output root folder for frame extraction from input videos
@@ -341,13 +392,14 @@ def main():
     print(all_vocabs[:20])
 
     # init smplx configuration for inference
+    # this is based on smplest-x official repo
+    # change if official repo updated
     ckpt_name = args.ckpt_name
     cudnn.benchmark = True
     time_str = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     root_dir = Path(__file__).resolve().parent.parent
     config_path = osp.join('./pretrained_models', ckpt_name, 'config_base.py')
     exp_name = f'inference_{ckpt_name}_{time_str}'
-
     cfg = Config.load_config(config_path)
     checkpoint_path = osp.join(
         './pretrained_models', ckpt_name, f'{ckpt_name}.pth.tar'
@@ -375,13 +427,14 @@ def main():
     bbox_model = getattr(cfg.inference.detection, "model_path",
                         './pretrained_models/yolov8x.pt')
     detector = YOLO(bbox_model)
-    print(detector)
-    print("detector loaded \n")
+    # print(detector)
+    # print("detector loaded \n")
 
     # get resume information
     completed_subfolders, last_subfolder, last_processed_files = get_resume_info(args.progress_file)
 
-    for subfolder_name in all_vocabs[:3]:
+    # step through each vocab folder
+    for subfolder_name in all_vocabs:
         # skip if the subfolder has been processed
         if subfolder_name in completed_subfolders:
             print(f"Skipping completed subfolder: {subfolder_name}")

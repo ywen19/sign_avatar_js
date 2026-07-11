@@ -1,14 +1,39 @@
+"""
+This module converts smplx axis-angle rotation in .npz to quaternion rotation
+that is compatible with smplx blender official plugin.
+
+The converted rotations are stored by:
+{bone_name: {frame: int, rotation: List[float]}}.
+
+We use Mixamo-based rig in the frontend,
+to convert quaternion result from this module to mixamo- and frontend- compatible
+quaternion rotation,
+please refer to ../convert_smplx_motion_to_mixamo_body.py.
+
+Axis-angle rotation to smpl-blender quaternion follows the math formulation 
+described in: https://gitlab.tuebingen.mpg.de/jtesch/smplx_blender_addon
+"""
+
+
 import json
 import math
 import numpy as np
 
 
 def rodrigues_to_quat_xyzw(rotvec: np.ndarray) -> np.ndarray:
+    """
+    Convert inferred rodrigues axis-angle to quaternion for bone rotations.
+
+    rotvec  (np.ndarray)  :  rodrigues axis-angle to be converted
+
+    Return:
+    (np.ndarray)          :  quaternion rotation 
+    """
     theta = np.linalg.norm(rotvec)
     if theta < 1e-8:
         return np.array([0.0, 0.0, 0.0, 1.0], dtype=np.float32)
 
-    axis = rotvec / theta
+    axis = rotvec / theta  # unit rotation axis
     half = theta * 0.5
     s = np.sin(half)
     w = np.cos(half)
@@ -18,10 +43,24 @@ def rodrigues_to_quat_xyzw(rotvec: np.ndarray) -> np.ndarray:
         axis[1] * s,
         axis[2] * s,
         w
-    ], dtype=np.float32)
+    ], dtype=np.float32)  # (4, )
 
 
 def quat_xyzw_multiply(q1: np.ndarray, q2: np.ndarray) -> np.ndarray:
+    """
+    Combine two quaternion rotations using the Hamilton product.
+
+    Here, it is mainly used to apply the fixed pelvis-coordinate correction
+    before the original SMPL-X pelvis rotation.
+
+    q1  (np.ndarray)  :  first quaternion, with shape (4,) and XYZW component ordering.
+                         In the pelvis conversion, this is the fixed correction rotation
+    q2  (np.ndarray)  :  second quaternion, with shape (4,) and XYZW component ordering.
+                         In the pelvis conversion, this is the original SMPL-X rotation
+
+    Return:
+    (np.ndarray)  :  combined quaternion with shape (4,), using XYZW component ordering
+    """
     x1, y1, z1, w1 = q1
     x2, y2, z2, w2 = q2
 
@@ -34,6 +73,17 @@ def quat_xyzw_multiply(q1: np.ndarray, q2: np.ndarray) -> np.ndarray:
 
 
 def normalize_quat_xyzw(q: np.ndarray) -> np.ndarray:
+    """ 
+    Normalize a quaternion to unit length while preserving XYZW ordering. 
+
+    If the quaternion magnitude is too close to zero, return the identity quaternion to avoid 
+    division by zero and invalid rotation values. 
+    
+    q (np.ndarray)  :  quaternion with shape (4,) and XYZW component ordering 
+    
+    Return: 
+    (np.ndarray)    :  normalized quaternion with shape (4,), using XYZW component ordering 
+    """
     n = np.linalg.norm(q)
     if n < 1e-8:
         return np.array([0.0, 0.0, 0.0, 1.0], dtype=np.float32)
@@ -41,6 +91,19 @@ def normalize_quat_xyzw(q: np.ndarray) -> np.ndarray:
 
 
 def axis_angle_to_quat_xyzw(axis: np.ndarray, angle_rad: float) -> np.ndarray:
+    """
+    Convert a separately defined rotation axis and angle to a quaternion. 
+    
+    Here, it is used to create one fixed quaternion representing the 180-degree X-axis correction 
+    applied to every pelvis rotation. The returned quaternion describes how the pelvis should 
+    be corrected.
+
+    axis       (np.ndarray)  :  rotation axis with shape (3,) 
+    angle_rad  (float)       :  rotation angle in radians 
+    
+    Return: 
+    (np.ndarray)             : quaternion with shape (4,), using XYZW component ordering
+    """
     axis = np.asarray(axis, dtype=np.float32)
     axis = axis / np.linalg.norm(axis)
     half = angle_rad * 0.5
@@ -50,19 +113,26 @@ def axis_angle_to_quat_xyzw(axis: np.ndarray, angle_rad: float) -> np.ndarray:
 
 
 def convert_pose_block_to_quat(rotvec_block: np.ndarray) -> np.ndarray:
-    """
-    rotvec_block:
-      - (J, 3) for one frame
-      - (F, J, 3) for multiple frames
-
-    returns:
-      - (J, 4) or (F, J, 4)
+    """ 
+    Convert a block of rodrigues axis-angle rotations to XYZW quaternions. 
+    
+    The input may contain all joint rotations for one frame or for multiple frames. 
+    Each joint rotation is converted independently using rodrigues_to_quat_xyzw. 
+    
+    rotvec_block  (np.ndarray)  :  axis-angle rotations with shape (J, 3) for one frame, 
+                                   or (F, J, 3) for multiple frames 
+    
+    Return: 
+    (np.ndarray)                :  quaternion rotations with shape (J, 4) for one frame, 
+                                   or (F, J, 4) for multiple frames, using XYZW component ordering
     """
     rotvec_block = np.asarray(rotvec_block, dtype=np.float32)
 
+    # if input is for one frame
     if rotvec_block.ndim == 2:
         return np.stack([rodrigues_to_quat_xyzw(rv) for rv in rotvec_block], axis=0)
 
+    # if input is for multiple frames
     if rotvec_block.ndim == 3:
         return np.stack(
             [np.stack([rodrigues_to_quat_xyzw(rv) for rv in frame], axis=0) for frame in rotvec_block],
@@ -74,21 +144,36 @@ def convert_pose_block_to_quat(rotvec_block: np.ndarray) -> np.ndarray:
 
 def convert_hand_pose_with_reference(hand_pose: np.ndarray, hand_ref_flat: np.ndarray) -> np.ndarray:
     """
-    hand_pose:
-      - old format: (45,) or (15, 3)
-      - new format: (F, 45) or (F, 15, 3)
+    Axis-angle to quaternion conversion for hands.
 
-    hand_ref_flat:
-      - (45,) relaxed hand reference
+    SMPL-X is adding the reference rodrigues rotation to the relaxed hand rodrigues rotation, 
+    so we have to do the same here.
+    
+    This means that pose values for relaxed hand model cannot be interpreted as rotations in the local 
+    joint coordinate system of the relaxed hand.
+    Reference:
+    https://github.com/vchoutas/smplx/blob/f4206853a4746139f61bdcf58571f2cea0cbebad/smplx/body_models.py
+    full_pose += self.pose_mean
+
+    hand_pose      (np.ndarray)  :  hand pose axis-angle values with shape (45,), (15, 3), (F, 45), or
+                                    (F, 15, 3) 
+    hand_ref_flat  (np.ndarray)  :  relaxed-hand reference axis-angle values with shape (45,), 
+                                    loaded from ./smpl_handposes.npz 
+    
+    Return: 
+    (np.ndarray)                 :  hand joint quaternions with shape (15, 4) for one frame, or (F, 15, 4) 
+                                    for multiple frames, using XYZW ordering
     """
     hand_pose = np.asarray(hand_pose, dtype=np.float32)
     hand_ref = np.asarray(hand_ref_flat, dtype=np.float32).reshape(15, 3)
 
+    # if input is for one frame
     if hand_pose.ndim == 1:
         hand_pose = hand_pose.reshape(15, 3)
         hand_pose_final = hand_pose + hand_ref
         return convert_pose_block_to_quat(hand_pose_final)
 
+    # if input is for multiple frames
     if hand_pose.ndim == 2:
         if hand_pose.shape[-1] == 45:
             hand_pose = hand_pose.reshape(hand_pose.shape[0], 15, 3)
@@ -110,13 +195,23 @@ def convert_hand_pose_with_reference(hand_pose: np.ndarray, hand_ref_flat: np.nd
 
 def ensure_frames_joints3(arr: np.ndarray, num_joints: int, name: str) -> np.ndarray:
     """
-    Normalize pose arrays into shape (F, J, 3).
-
-    Accepts:
-      - (J*3,)          -> (1, J, 3)
-      - (J, 3)          -> (1, J, 3)
-      - (F, J*3)        -> (F, J, 3)
-      - (F, J, 3)       -> (F, J, 3)
+    Normalize a pose array to shape (F, J, 3). 
+    
+    This allows the rest of the module to process single-frame and multiple-frame pose data using one 
+    consistent array shape. 
+    
+    Supported input shapes: 
+        (J * 3,) -> (1, J, 3)
+        (J, 3) -> (1, J, 3)
+        (F, J * 3) -> (F, J, 3)
+        (F, J, 3) -> (F, J, 3) 
+        
+    arr         (np.ndarray)  :  pose array containing axis-angle rotations 
+    num_joints  (int)         :  expected number of joints in the pose array 
+    name        (str)         :  array name used in validation error messages 
+    
+    Return: 
+    (np.ndarray)              :  pose array with shape (F, J, 3)
     """
     arr = np.asarray(arr, dtype=np.float32)
 
@@ -137,10 +232,12 @@ def ensure_frames_joints3(arr: np.ndarray, num_joints: int, name: str) -> np.nda
     raise ValueError(f"{name}: unsupported shape {arr.shape}")
 
 
+# Main conversion for single file test
 POSE_NPZ_PATH = "./demo/output_smplx/queue/queue_person00_smplx_pose.npz"
 HANDPOSES_NPZ_PATH = "./smplx_handposes.npz"
 OUTPUT_JSON_PATH = "./queue_person00_smplx_quat_blender_names.json"
 
+# smpl joint name
 body_joint_names_blender = [
     "left_hip",
     "right_hip",
@@ -201,8 +298,10 @@ right_hand_joint_names_blender = [
     "right_thumb3",
 ]
 
+# load axis-angle rotation from npz
 pose_data = np.load(POSE_NPZ_PATH)
 
+# check validity of loaded axis-angle rotations
 global_orient = ensure_frames_joints3(pose_data["global_orient"], 1, "global_orient")
 body_pose = ensure_frames_joints3(pose_data["body_pose"], 21, "body_pose")
 jaw_pose = ensure_frames_joints3(pose_data["jaw_pose"], 1, "jaw_pose")
@@ -217,26 +316,34 @@ if body_pose.shape[0] != num_frames:
 if jaw_pose.shape[0] != num_frames:
     raise ValueError(f"jaw_pose frame count mismatch: {jaw_pose.shape[0]} vs {num_frames}")
 
+# load relaxed-hand reference pose constants from local npz file
 handpose_data = np.load(HANDPOSES_NPZ_PATH, allow_pickle=True)
 hand_poses = handpose_data["hand_poses"].item()
 left_hand_relaxed_ref, right_hand_relaxed_ref = hand_poses["relaxed"]
-
 left_hand_relaxed_ref = left_hand_relaxed_ref.astype(np.float32)
 right_hand_relaxed_ref = right_hand_relaxed_ref.astype(np.float32)
 
+# convert hand axis-angle to quaternion
 left_hand_quat = convert_hand_pose_with_reference(left_hand_pose, left_hand_relaxed_ref)
 right_hand_quat = convert_hand_pose_with_reference(right_hand_pose, right_hand_relaxed_ref)
 
+# add a frame dimension for single-frame hand poses so all hand quaternion
+# arrays consistently use shape (F, 15, 4)
 if left_hand_quat.ndim == 2:
     left_hand_quat = left_hand_quat[None, :, :]
 if right_hand_quat.ndim == 2:
     right_hand_quat = right_hand_quat[None, :, :]
 
 if left_hand_quat.shape[0] != num_frames:
-    raise ValueError(f"left_hand_pose frame count mismatch: {left_hand_quat.shape[0]} vs {num_frames}")
+    raise ValueError(
+        f"left_hand_pose frame count mismatch: {left_hand_quat.shape[0]} vs {num_frames}"
+    )
 if right_hand_quat.shape[0] != num_frames:
-    raise ValueError(f"right_hand_pose frame count mismatch: {right_hand_quat.shape[0]} vs {num_frames}")
+    raise ValueError(
+        f"right_hand_pose frame count mismatch: {right_hand_quat.shape[0]} vs {num_frames}"
+    )
 
+# convert pelvis  axis-angle to quaternion with 180-degree on x as correction
 pelvis_quat = convert_pose_block_to_quat(global_orient)[:, 0, :]   # (F, 4)
 jaw_quat = convert_pose_block_to_quat(jaw_pose)[:, 0, :]           # (F, 4)
 body_quat = convert_pose_block_to_quat(body_pose)                  # (F, 21, 4)
@@ -251,7 +358,10 @@ pelvis_quat_corrected = np.stack([
     for q in pelvis_quat
 ], axis=0)
 
-frame_ids = pose_data["frame_ids"].tolist() if "frame_ids" in pose_data.files else list(range(num_frames))
+# all joint conversion
+frame_ids = (
+    pose_data["frame_ids"].tolist() if "frame_ids" in pose_data.files else list(range(num_frames))
+)
 
 all_joint_rotations = {}
 
@@ -260,9 +370,13 @@ for name, joint_quats in zip(body_joint_names_blender, np.transpose(body_quat, (
     all_joint_rotations[name] = joint_quats
 
 all_joint_rotations["jaw"] = jaw_quat
-for name, joint_quats in zip(left_hand_joint_names_blender, np.transpose(left_hand_quat, (1, 0, 2))):
+for name, joint_quats in zip(
+    left_hand_joint_names_blender, np.transpose(left_hand_quat, (1, 0, 2))
+):
     all_joint_rotations[name] = joint_quats
-for name, joint_quats in zip(right_hand_joint_names_blender, np.transpose(right_hand_quat, (1, 0, 2))):
+for name, joint_quats in zip(
+    right_hand_joint_names_blender, np.transpose(right_hand_quat, (1, 0, 2))
+):
     all_joint_rotations[name] = joint_quats
 
 output_json = {

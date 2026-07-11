@@ -1,3 +1,11 @@
+"""Legacy Flask prototype retained for reference.
+
+This file is no longer the main application entry point. 
+
+Run python app.py from the repository root to start the current 
+application.
+"""
+
 from flask import Flask, jsonify, render_template
 from switch_anim import TestAnimLoader
 

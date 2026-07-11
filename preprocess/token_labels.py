@@ -1,6 +1,8 @@
 """
 We annotate the identity of chunks inside the vocab.
-This is mainly for reordering for BSL syntax.
+This is mainly for reordering contexts in BSL syntax.
+
+Manually check and fix is acquired after this automation.
 """
 
 import argparse
@@ -8,14 +10,18 @@ import json
 from pathlib import Path
 import sys
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+from typing import Final, Dict, Set, List
+
+
+# add project root for module import
+PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from language_utils import load_model, cleanup, get_response
 
 
 # only some identities will actively affect reordering for now
-IDENTITY_RULES = {
+IDENTITY_RULES: Dict[str, str] = {
     "entity": "protect",
     "question_phrase": "protect",
     "time": "start",
@@ -26,10 +32,10 @@ IDENTITY_RULES = {
     "normal": "unchanged",
 }
 
-wh_words = {"what", "when", "where", "who", "why", "how",
+wh_words: Set[str] = {"what", "when", "where", "who", "why", "how",
     "whats", "whens", "wheres", "whos", "why", "hows", "which"}
 
-yes_no_words = {
+yes_no_words: Set[str] = {
     "is", "are", "am",
     "was", "were",
     "can", "could",
@@ -47,7 +53,7 @@ yes_no_words = {
     "maynt", "mightnt",
 }
 
-negation_words = {
+negation_words: Set[str] = {
     "not", "no", "never",
     "cannot", "cant",
     "dont", "doesnt", "didnt",
@@ -60,7 +66,15 @@ negation_words = {
 }
 
 
-def load_vocab_json(json_path: str) -> list[str]:
+def load_vocab_json(json_path: str) -> List[str]:
+    """
+    Read in all vocabs to be labeled from a json file.
+
+    json_path  (str)  :  path to the json file where all vocabs are stored
+
+    Return:
+    (List[str])       :  all vocabs stored in a list
+    """
     path = Path(json_path)
 
     if not path.exists():
@@ -83,22 +97,63 @@ def load_vocab_json(json_path: str) -> list[str]:
 
     return vocab_list
 
-def is_wh_word_or_wh_phrase(words):
+
+def is_wh_word_or_wh_phrase(words: List[str]) -> str:
+    """
+    Detect if input is question phrase starts with wh word or wh word.
+
+    For now we decide length more than 1 will be phrase.
+    This is not ideal if we extend the vocab, but for now, 
+    such logic works because the vocab contains only either wh word
+    or question sentence.
+
+    words  (List[str])  :  vocab chunk (split into list by word)
+
+    Return:
+    (str)               :  identity label
+    """
     if words[0] in wh_words:
         return "wh" if len(words) == 1 else "question_phrase"
     return None
 
-def is_yes_no_question_phrase(words):
+
+def is_yes_no_question_phrase(words: List[str]) -> str:
+    """
+    Detect if input is question phrase not starts with wh word.
+
+    words  (List[str])  :  vocab chunk (split into list by word)
+
+    Return:
+    (str)               :  identity label
+    """
     if words[0] in yes_no_words and len(words) > 1:
         return "question_phrase"
     return None
 
-def is_negation(words):
+
+def is_negation(words: List[str]) -> str:
+    """
+    Detect if input is negation word.
+
+    words  (List[str])  :  vocab chunk (split into list by word)
+
+    Return:
+    (str)               :  identity label
+    """
     if len(words) == 1 and words[0] in negation_words:
         return "negation"
     return None
 
-def is_time_by_smollm(formatted_chunk):
+
+def is_time_by_smollm(formatted_chunk: str)  -> str:
+    """
+    Detect time identity rule by pretrained llm as classfier.
+
+    formatted_chunk  (str)  :  normalized vocab chunk (replace _ by space)
+
+    Return:
+    (str)                   :  identity label
+    """
     prompt = (
         f'Is "{formatted_chunk}" a time expression used to indicate time, date, '
         f'duration, frequency, or temporal reference? '
@@ -109,7 +164,16 @@ def is_time_by_smollm(formatted_chunk):
         return "time"
     return None 
 
-def find_chunk_indentity(vocab_chunk):
+
+def find_chunk_indentity(vocab_chunk: str) -> str:
+    """
+    Wrapper function to detect vocab chunk identity.
+
+    vocab_chunk  (str)  :  vocab chunk
+
+    Return:
+    (str)               :  identity label
+    """
     formatted_chunk = vocab_chunk.replace("_", " ").strip()
     words = formatted_chunk.split()
     wh_state = is_wh_word_or_wh_phrase(words)
@@ -126,7 +190,15 @@ def find_chunk_indentity(vocab_chunk):
         return time_state
     return "normal"
 
-def append_jsonl_record(output_path, chunk, identity) -> None:
+
+def append_jsonl_record(output_path: str, chunk: str, identity: str) -> None:
+    """
+    Append the vocab chunk and its detected identity to metadata file (JSONL).
+
+    output_path  (str)  :  metadata file path
+    chunk        (str)  :  vocab chunk
+    identity     (str)  :  detected chunk identity
+    """
     record = {
         "chunk": chunk,
         "identity": identity,
@@ -134,56 +206,6 @@ def append_jsonl_record(output_path, chunk, identity) -> None:
     with open(output_path, "a", encoding="utf-8") as f:
         f.write(json.dumps(record, ensure_ascii=False) + "\n")
 
-def test_is_time_by_smollm():
-    test_cases = [
-        # clear time cases
-        "today",
-        "tomorrow",
-        "yesterday",
-        "next week",
-        "last year",
-        "this morning",
-        "a long time ago",
-        "three days ago",
-        "10 years ago",
-        "2 weeks",
-        "monday",
-        "january",
-
-        # date-like / numeric cases
-        "2024",
-        "12 april 2024",
-        "april 12",
-        "3 pm",
-        "6 oclock",
-        "midnight",
-        "noon",
-
-        # hard / borderline time cases
-        "at the moment",
-        "before long",
-        "for a while",
-        "soon",
-        "later",
-        "early",
-        "recently",
-
-        # non-time cases
-        "museum",
-        "bournemouth",
-        "what",
-        "not",
-        "beautiful",
-        "british sign language",
-        "can you swim",
-        "where are you from",
-    ]
-
-    print("\n========== TEST is_time_by_smollm ==========\n")
-
-    for chunk in test_cases:
-        result = is_time_by_smollm(chunk)
-        print(f'"{chunk}" -> {result}')
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -201,7 +223,6 @@ def parse_args():
     )
 
     return parser.parse_args()
-
 
 
 def main():
