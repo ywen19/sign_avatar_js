@@ -1,12 +1,12 @@
 const textInput = document.getElementById("text-input");
 const sendTextBtn = document.getElementById("send-text-btn");
-const cameraStatus = document.getElementById("camera-status");
+const statusOutput = document.getElementById("camera-status");
 const subtitleOutput = document.getElementById("subtitle-output");
 let isSubmitting = false;
 
 function setStatus(message) {
-  if (cameraStatus) {
-    cameraStatus.textContent = message;
+  if (statusOutput) {
+    statusOutput.textContent = message;
   }
 }
 
@@ -16,14 +16,54 @@ async function sendTextToBackend(text) {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ text: text })
+    body: JSON.stringify({ text })
   });
 
   if (!response.ok) {
-    throw new Error("Failed to send text to backend");
+    let errorMessage = "Failed to send text to backend";
+
+    try {
+      const errorPayload = await response.json();
+      if (errorPayload.error) {
+        errorMessage = errorPayload.error;
+      }
+    } catch {
+      // Keep the fallback message when the backend response is not JSON.
+    }
+
+    throw new Error(errorMessage);
   }
 
-  return await response.json();
+  return response.json();
+}
+
+function applyTextResponse(result) {
+  console.log("[TEXT_INPUT] backend response:", {
+    ok: result.ok,
+    animation: result.animation,
+    tracedTokenCount: result.traced_tokens ? result.traced_tokens.length : 0,
+    missingMotionTokenCount: result.missing_motion_tokens
+      ? result.missing_motion_tokens.length
+      : 0,
+  });
+
+  if (subtitleOutput && result.answer_text) {
+    subtitleOutput.textContent = result.answer_text;
+  }
+
+  if (result.frames && window.loadAvatarAnimationFromJson) {
+    window.loadAvatarAnimationFromJson(
+      result.animation || "answer_motion",
+      result.frames
+    );
+  }
+
+  if (result.missing_motion_tokens && result.missing_motion_tokens.length) {
+    console.warn(
+      "[TEXT_INPUT] missing motion tokens:",
+      result.missing_motion_tokens
+    );
+  }
 }
 
 async function handleTextSubmit() {
@@ -41,35 +81,17 @@ async function handleTextSubmit() {
     }
 
     const result = await sendTextToBackend(text);
-    console.log("[TEXT_INPUT] backend response:", {
-      ok: result.ok,
-      animation: result.animation,
-      tracedTokenCount: result.traced_tokens ? result.traced_tokens.length : 0,
-      missingMotionTokenCount: result.missing_motion_tokens
-        ? result.missing_motion_tokens.length
-        : 0,
-    });
-
-    if (subtitleOutput && result.answer_text) {
-      subtitleOutput.textContent = result.answer_text;
-    }
-
-    if (result.frames && window.loadAvatarAnimationFromJson) {
-      window.loadAvatarAnimationFromJson(
-        result.animation || "answer_motion",
-        result.frames
-      );
-    }
-
-    if (result.missing_motion_tokens && result.missing_motion_tokens.length) {
-      console.warn("[TEXT_INPUT] missing motion tokens:", result.missing_motion_tokens);
-    }
+    applyTextResponse(result);
 
     setStatus("SmolLM answer received");
     textInput.value = "";
   } catch (error) {
     console.error("[TEXT_INPUT] error:", error);
     setStatus("Failed to send text");
+
+    if (window.playAnimationFromStart) {
+      window.playAnimationFromStart();
+    }
   } finally {
     isSubmitting = false;
   }
