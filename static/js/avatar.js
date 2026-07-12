@@ -1,4 +1,17 @@
 import {
+  applyAnimationPayload,
+  getAnimationLoopEnabled,
+  getCurrentAnimationName,
+  normalizeBoneName,
+  pauseAnimationPlayback,
+  playAnimationFromStart,
+  reapplyCurrentAnimation,
+  resetAnimationPlayback,
+  setAnimationLoopEnabled,
+  setAnimationRig,
+  updateAnimation,
+} from "./avatar_animation.js";
+import {
   applyFixedAvatarCamera,
   getAvatarScene,
   initAvatarScene,
@@ -11,30 +24,17 @@ let avatar = null;
 let skeleton = null;
 const boneNameMap = {};
 
-let poseFrames = {};
-let maxFrame = 0;
-let fps = 30;
-let currentAnimationName = null;
-let currentAnimationPayload = null;
 let currentModelUrl = null;
 let modelLoadRequestId = 0;
-let isAnimationPlaying = true;
-let isLoopEnabled = false;
 
 const DEFAULT_MODEL_URL = "/models/woman.glb";
 const DEMO_MATERIAL_FIX_MODEL_URLS = new Set(["/models/man.glb", "/models/woman.glb"]);
 const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model";
-const ANIMATION_LOOP_PAUSE_SECONDS = 3.0;
 const modelAssetCache = new Map();
 const modelAssetPromises = new Map();
 let avatarManifestPromise = null;
 
 const clock = new THREE.Clock();
-
-function normalizeBoneName(name) {
-  if (!name) return name;
-  return String(name).trim().replace(/^mixamorig[:_.]?/i, "");
-}
 
 function log(...args) {
   console.log("[AVATAR]", ...args);
@@ -221,6 +221,8 @@ function installLoadedAvatar(nextAvatar, nextSkeleton) {
     });
     log("Skeleton bones normalized:", Object.keys(boneNameMap));
   }
+
+  setAnimationRig(avatar, skeleton, boneNameMap);
 }
 
 function loadAvatarAsset(url) {
@@ -282,9 +284,7 @@ async function loadModel(url = DEFAULT_MODEL_URL, options = {}) {
 
     if (shouldFetchDefaultAnimation) {
       await fetchDefaultAnimationFromBackend();
-    } else if (currentAnimationPayload) {
-      applyAnimationPayload(currentAnimationPayload);
-    } else {
+    } else if (!reapplyCurrentAnimation()) {
       resetAnimationPlayback();
     }
 
@@ -349,137 +349,6 @@ async function preloadAvatarModelsFromManifest() {
   }
 }
 
-function preparePoseFrames(data) {
-  poseFrames = {};
-  maxFrame = 0;
-
-  if (!data || !data.bones) {
-    console.error("Invalid animation data: missing bones");
-    return;
-  }
-
-  for (const name in data.bones) {
-    const arr = [];
-    const keyframes = data.bones[name];
-
-    keyframes.forEach((k) => {
-      arr[k.f] = new THREE.Quaternion(
-        k.rot[0],
-        k.rot[1],
-        k.rot[2],
-        k.rot[3]
-      );
-      if (k.f > maxFrame) maxFrame = k.f;
-    });
-
-    const norm = normalizeBoneName(name);
-    poseFrames[norm] = arr;
-  }
-
-  log("Prepared animation. fps =", fps, "maxFrame =", maxFrame);
-}
-
-function applyPoseFrame(frame) {
-  if (!avatar || !skeleton) return;
-
-  for (const name in poseFrames) {
-    const bone = boneNameMap[name];
-    if (!bone) continue;
-
-    const q = poseFrames[name][frame];
-    if (!q) continue;
-
-    bone.quaternion.copy(q);
-  }
-
-  avatar.updateMatrixWorld(true);
-}
-
-function playAnimationFromStart() {
-  updateAnimation.time = 0;
-  isAnimationPlaying = true;
-  applyPoseFrame(0);
-}
-
-function pauseAnimationPlayback() {
-  isAnimationPlaying = false;
-}
-
-function resetAnimationPlayback() {
-  playAnimationFromStart();
-}
-
-function setAnimationLoopEnabled(enabled) {
-  const nextLoopEnabled = Boolean(enabled);
-  const wasLoopEnabled = isLoopEnabled;
-  isLoopEnabled = nextLoopEnabled;
-
-  if (maxFrame) {
-    const totalFrames = maxFrame + 1;
-    const animationDuration = totalFrames / fps;
-    const loopDuration = animationDuration + ANIMATION_LOOP_PAUSE_SECONDS;
-
-    if (!isLoopEnabled && wasLoopEnabled && updateAnimation.time !== undefined) {
-      const loopTime = updateAnimation.time % loopDuration;
-      updateAnimation.time = loopTime < animationDuration ? loopTime : 0;
-      isAnimationPlaying = true;
-
-      if (loopTime >= animationDuration) {
-        applyPoseFrame(0);
-      }
-    }
-
-    if (isLoopEnabled && !isAnimationPlaying) {
-      isAnimationPlaying = true;
-
-      if (
-        updateAnimation.time === undefined ||
-        updateAnimation.time < animationDuration
-      ) {
-        updateAnimation.time = animationDuration;
-      }
-    }
-  }
-
-  return isLoopEnabled;
-}
-
-function getAnimationLoopEnabled() {
-  return isLoopEnabled;
-}
-
-function applyAnimationPayload(payload) {
-  if (!payload) {
-    console.error("applyAnimationPayload: payload is empty");
-    return;
-  }
-
-  log("Applying animation payload:", {
-    animation: payload.animation,
-    fps: payload.frames ? payload.frames.fps : undefined,
-    boneCount:
-      payload.frames && payload.frames.bones
-        ? Object.keys(payload.frames.bones).length
-        : 0,
-  });
-  currentAnimationPayload = payload;
-
-  const framesData = payload.frames;
-  if (!framesData) {
-    console.error("Payload missing frames field");
-    return;
-  }
-
-  fps = framesData.fps || 30;
-  currentAnimationName = payload.animation || "unknown";
-
-  preparePoseFrames(framesData);
-
-  playAnimationFromStart();
-
-  log("Animation applied:", currentAnimationName);
-}
-
 async function fetchDefaultAnimationFromBackend() {
   try {
     log("Fetching default animation from /api/start");
@@ -513,37 +382,6 @@ async function fetchEndAnimationFromBackend() {
   }
 }
 
-function updateAnimation(dt) {
-  if (!avatar || !skeleton || !maxFrame || !isAnimationPlaying) return;
-
-  if (updateAnimation.time === undefined) updateAnimation.time = 0;
-  updateAnimation.time += dt;
-
-  const totalFrames = maxFrame + 1;
-  const animationDuration = totalFrames / fps;
-
-  if (!isLoopEnabled && updateAnimation.time >= animationDuration) {
-    applyPoseFrame(maxFrame);
-    isAnimationPlaying = false;
-    return;
-  }
-
-  const loopDuration = animationDuration + ANIMATION_LOOP_PAUSE_SECONDS;
-  const loopTime = updateAnimation.time % loopDuration;
-
-  if (loopTime >= animationDuration) {
-    applyPoseFrame(maxFrame);
-    return;
-  }
-
-  const currentFrame = Math.min(
-    Math.floor(loopTime * fps),
-    maxFrame
-  );
-
-  applyPoseFrame(currentFrame);
-}
-
 function animate() {
   requestAnimationFrame(animate);
 
@@ -571,9 +409,7 @@ window.loadAvatarAnimationFromJson = function (animationName, framesData) {
   });
 };
 
-window.getCurrentAnimationName = function () {
-  return currentAnimationName;
-};
+window.getCurrentAnimationName = getCurrentAnimationName;
 
 window.addEventListener("error", function (e) {
   console.error("Global JS error:", e.message, "@", e.filename + ":" + e.lineno);
