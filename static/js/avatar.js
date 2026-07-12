@@ -1,6 +1,13 @@
+import {
+  applyFixedAvatarCamera,
+  getAvatarScene,
+  initAvatarScene,
+  renderAvatarScene,
+} from "./avatar_scene.js";
+
 console.log("AVATAR JS LOADED");
 
-let scene, camera, renderer, avatar;
+let avatar = null;
 let skeleton = null;
 const boneNameMap = {};
 
@@ -23,7 +30,6 @@ const modelAssetPromises = new Map();
 let avatarManifestPromise = null;
 
 const clock = new THREE.Clock();
-const stageEl = document.getElementById("avatar-stage");
 
 function normalizeBoneName(name) {
   if (!name) return name;
@@ -32,64 +38,6 @@ function normalizeBoneName(name) {
 
 function log(...args) {
   console.log("[AVATAR]", ...args);
-}
-
-function applyFixedAvatarCamera() {
-  if (!camera) return;
-
-  const target = new THREE.Vector3(0, 13.1, 0);
-  const distance = 16.2;
-  camera.position.set(target.x, target.y, target.z + distance);
-  camera.lookAt(target);
-}
-
-function init() {
-  log("stageEl =", stageEl);
-
-  if (!stageEl) {
-    console.error("avatar-stage container not found.");
-    return;
-  }
-
-  scene = new THREE.Scene();
-  scene.background = null;
-
-  const width = stageEl.clientWidth || 800;
-  const height = stageEl.clientHeight || 600;
-
-  camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
-  camera.position.set(0, 8.0, 23.0);
-  camera.lookAt(0, 8.0, 0);
-
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  if (THREE.ACESFilmicToneMapping !== undefined) {
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.78;
-  }
-  renderer.setClearAlpha(0);
-
-  stageEl.appendChild(renderer.domElement);
-  applyFixedAvatarCamera();
-
-  const hemi = new THREE.HemisphereLight(0xf6fbff, 0xb9d8df, 0.78);
-  scene.add(hemi);
-
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.18);
-  keyLight.position.set(7, 4, 8);
-  scene.add(keyLight);
-
-  const fillLight = new THREE.DirectionalLight(0xdceffc, 0.12);
-  fillLight.position.set(-6, 5, 6);
-  scene.add(fillLight);
-
-  const rimLight = new THREE.DirectionalLight(0xb9d8df, 0.24);
-  rimLight.position.set(5, 6, -5);
-  scene.add(rimLight);
-
-  window.addEventListener("resize", onWindowResize);
 }
 
 function clearBoneNameMap() {
@@ -139,12 +87,13 @@ function applyTemporaryDemoGLBMaterialFixes(material) {
   if (!material) return;
 
   // TODO: Remove this function when the final outsourced avatar models arrive.
-  // The current demo GLBs contain KHR_materials_specular with specularColorFactor [2, 2, 2]
+  // The current demo GLBs contain KHR_materials_specular with a
+  // specularColorFactor of [2, 2, 2]
   // and a texture named "Glossiness" wired into glTF's metallicRoughnessTexture slot.
-  // In Three.js, roughness is multiplied by the green channel of roughnessMap, and these
-  // files have very low green-channel values, so the clothes render with strong baked shine
-  // even when material.roughness is set high. These overrides are intentionally limited to
-  // /models/man.glb and /models/woman.glb so final PBR assets can keep their proper maps.
+  // Three.js multiplies roughness by the green channel of roughnessMap. These
+  // files have low green-channel values, so clothes retain strong baked shine
+  // even with high material roughness. Limit these overrides to the demo
+  // models so final PBR assets can keep their proper maps.
   if (material.roughness !== undefined) {
     material.roughness = 0.58;
   }
@@ -242,6 +191,11 @@ function prepareLoadedAvatar(gltf, modelUrl) {
 }
 
 function installLoadedAvatar(nextAvatar, nextSkeleton) {
+  const scene = getAvatarScene();
+  if (!scene) {
+    throw new Error("Avatar scene is not initialized.");
+  }
+
   const previousAvatar = avatar;
 
   if (previousAvatar && previousAvatar !== nextAvatar) {
@@ -358,7 +312,9 @@ async function loadAvatarManifest() {
 async function getManifestDefaultAvatarModelUrl() {
   try {
     const avatars = await loadAvatarManifest();
-    const defaultEntry = Object.values(avatars).find((avatarData) => avatarData.default);
+    const defaultEntry = Object.values(avatars).find(
+      (avatarData) => avatarData.default
+    );
     return defaultEntry ? normalizeModelUrl(defaultEntry.model) : DEFAULT_MODEL_URL;
   } catch (err) {
     console.warn("Avatar manifest default failed:", err);
@@ -476,7 +432,10 @@ function setAnimationLoopEnabled(enabled) {
     if (isLoopEnabled && !isAnimationPlaying) {
       isAnimationPlaying = true;
 
-      if (updateAnimation.time === undefined || updateAnimation.time < animationDuration) {
+      if (
+        updateAnimation.time === undefined ||
+        updateAnimation.time < animationDuration
+      ) {
         updateAnimation.time = animationDuration;
       }
     }
@@ -498,7 +457,10 @@ function applyAnimationPayload(payload) {
   log("Applying animation payload:", {
     animation: payload.animation,
     fps: payload.frames ? payload.frames.fps : undefined,
-    boneCount: payload.frames && payload.frames.bones ? Object.keys(payload.frames.bones).length : 0,
+    boneCount:
+      payload.frames && payload.frames.bones
+        ? Object.keys(payload.frames.bones).length
+        : 0,
   });
   currentAnimationPayload = payload;
 
@@ -588,20 +550,7 @@ function animate() {
   const dt = clock.getDelta();
   updateAnimation(dt);
 
-  if (renderer && scene && camera) {
-    renderer.render(scene, camera);
-  }
-}
-
-function onWindowResize() {
-  if (!renderer || !camera || !stageEl) return;
-
-  const width = stageEl.clientWidth || 800;
-  const height = stageEl.clientHeight || 600;
-
-  camera.aspect = width / height;
-  camera.updateProjectionMatrix();
-  renderer.setSize(width, height);
+  renderAvatarScene();
 }
 
 window.switchAvatarModel = async function (modelUrl) {
@@ -665,6 +614,6 @@ async function startAvatarApp() {
   }
 }
 
-init();
+initAvatarScene();
 startAvatarApp();
 animate();
