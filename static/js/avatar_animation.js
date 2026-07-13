@@ -20,6 +20,54 @@ let isLoopEnabled = false;
 
 const ANIMATION_LOOP_PAUSE_SECONDS = 3.0;
 
+// Only prepare tracks that drive the visible signing pose. Bones omitted here
+// are never changed by animation playback and remain in their model pose.
+const ALLOWED_ANIMATION_BONE_NAMES = new Set([
+  "Spine",
+  "Spine1",
+  "Spine2",
+  "Neck",
+  "Head",
+  "LeftShoulder",
+  "LeftArm",
+  "LeftForeArm",
+  "LeftHand",
+  "RightShoulder",
+  "RightArm",
+  "RightForeArm",
+  "RightHand",
+  "LeftHandThumb1",
+  "LeftHandThumb2",
+  "LeftHandThumb3",
+  "LeftHandIndex1",
+  "LeftHandIndex2",
+  "LeftHandIndex3",
+  "LeftHandMiddle1",
+  "LeftHandMiddle2",
+  "LeftHandMiddle3",
+  "LeftHandRing1",
+  "LeftHandRing2",
+  "LeftHandRing3",
+  "LeftHandPinky1",
+  "LeftHandPinky2",
+  "LeftHandPinky3",
+  "RightHandThumb1",
+  "RightHandThumb2",
+  "RightHandThumb3",
+  "RightHandIndex1",
+  "RightHandIndex2",
+  "RightHandIndex3",
+  "RightHandMiddle1",
+  "RightHandMiddle2",
+  "RightHandMiddle3",
+  "RightHandRing1",
+  "RightHandRing2",
+  "RightHandRing3",
+  "RightHandPinky1",
+  "RightHandPinky2",
+  "RightHandPinky3",
+]);
+
 /**
  * Normalize Mixamo bone names for both skeleton and motion-data lookup.
  *
@@ -63,6 +111,9 @@ function preparePoseFrames(data) {
   }
 
   for (const name in data.bones) {
+    const normalizedName = normalizeBoneName(name);
+    if (!ALLOWED_ANIMATION_BONE_NAMES.has(normalizedName)) continue;
+
     const frames = [];
     const keyframes = data.bones[name];
 
@@ -77,7 +128,6 @@ function preparePoseFrames(data) {
       if (keyframe.f > maxFrame) maxFrame = keyframe.f;
     });
 
-    const normalizedName = normalizeBoneName(name);
     poseFrames[normalizedName] = frames;
   }
 

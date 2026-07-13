@@ -52,7 +52,7 @@ const avatarPickerBtn = document.getElementById("avatar-picker-btn");
 const avatarReplayBtn = document.getElementById("avatar-replay-btn");
 const avatarLoopBtn = document.getElementById("avatar-loop-btn");
 const avatarPopover = document.getElementById("avatar-popover");
-const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model";
+const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model-v4";
 let isSwitchingAvatar = false;
 
 /**

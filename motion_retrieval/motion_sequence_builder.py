@@ -6,8 +6,8 @@ validates the motion data, then concatenates multiple vocab motion clips into
 one continuous animation.
 
 Interpolation frames are inserted between neighboring clips to make transitions
-smoother. The hips rotation is fixed during output so the avatar root orientation
-stays stable across concatenated motion clips.
+smoother. Only bones used by the frontend signing animation are included in the
+concatenated output.
 """
 
 
@@ -19,13 +19,53 @@ import json
 # current motion data root
 SMPL_DATA_ROOT: Final[Path] = Path("/home/ywen/Desktop/smpl_data_threejs/")
 
-# keep the avatar root orientation stable across concatenated vocab clips
-FIXED_HIP_ROTATION: List[float] = [
-    0.7193659472722247,
-    0.00006376511902153256,
-    -0.012867924020065152,
-    -0.6945120923141355,
-]
+# Keep this ordered list aligned with ALLOWED_ANIMATION_BONE_NAMES in
+# static/js/avatar_animation.js. Source clips use prefixed Mixamo bone names.
+ALLOWED_ANIMATION_BONES: Final[Tuple[str, ...]] = (
+    "mixamorig:Spine",
+    "mixamorig:Spine1",
+    "mixamorig:Spine2",
+    "mixamorig:Neck",
+    "mixamorig:Head",
+    "mixamorig:LeftShoulder",
+    "mixamorig:LeftArm",
+    "mixamorig:LeftForeArm",
+    "mixamorig:LeftHand",
+    "mixamorig:RightShoulder",
+    "mixamorig:RightArm",
+    "mixamorig:RightForeArm",
+    "mixamorig:RightHand",
+    "mixamorig:LeftHandThumb1",
+    "mixamorig:LeftHandThumb2",
+    "mixamorig:LeftHandThumb3",
+    "mixamorig:LeftHandIndex1",
+    "mixamorig:LeftHandIndex2",
+    "mixamorig:LeftHandIndex3",
+    "mixamorig:LeftHandMiddle1",
+    "mixamorig:LeftHandMiddle2",
+    "mixamorig:LeftHandMiddle3",
+    "mixamorig:LeftHandRing1",
+    "mixamorig:LeftHandRing2",
+    "mixamorig:LeftHandRing3",
+    "mixamorig:LeftHandPinky1",
+    "mixamorig:LeftHandPinky2",
+    "mixamorig:LeftHandPinky3",
+    "mixamorig:RightHandThumb1",
+    "mixamorig:RightHandThumb2",
+    "mixamorig:RightHandThumb3",
+    "mixamorig:RightHandIndex1",
+    "mixamorig:RightHandIndex2",
+    "mixamorig:RightHandIndex3",
+    "mixamorig:RightHandMiddle1",
+    "mixamorig:RightHandMiddle2",
+    "mixamorig:RightHandMiddle3",
+    "mixamorig:RightHandRing1",
+    "mixamorig:RightHandRing2",
+    "mixamorig:RightHandRing3",
+    "mixamorig:RightHandPinky1",
+    "mixamorig:RightHandPinky2",
+    "mixamorig:RightHandPinky3",
+)
 
 
 def retrieve_json_paths(tokens: List[str]) -> List[Optional[Path]]:
@@ -95,53 +135,6 @@ def interpolate_rotation(
     ]
 
     return normalize_rotation(rot)
-
-
-def normalize_bone_name(bone_name: str) -> str:
-    """
-    Convert mixamo bone name to a normalized format.
-
-    We use mixamo-compatible rig for frontend.
-
-    bone_name  (str)  :  bone name to be normalized
-
-    Return:
-    (str)             : normalized bone name
-    """
-    return str(bone_name).strip().lower().replace("mixamorig:", "")
-
-
-def is_hip_bone(bone_name: str) -> bool:
-    """
-    Check whether a bone name refers to the hips bone.
-
-    bone_name  (str)  :  bone name to be normalized
-
-    Return:
-    (bool)            : true if is hip bone otherwise false
-    """
-    return normalize_bone_name(bone_name) == "hips"
-
-
-def get_output_rotation(
-    bone_name: str, source_rotation: List[float]
-) -> List[float]:
-    """
-    Return the rotation to use in the output motion.
-
-    The hips bone always uses the fixed root rotation to keep the avatar's
-    orientation stable. Other bones use their original source rotation.
-
-    bone_name        (str)          :  bone name
-    source_rotation  (List[float])  :  quaternion rotation in [x,y,z,w]
-
-    Return:
-    (List[float])                   :  quaternion rotation for output
-    """
-    if is_hip_bone(bone_name):
-        return list(FIXED_HIP_ROTATION)
-
-    return source_rotation
 
 
 def load_motion_json(json_path: str) -> Dict[str, Any]:
@@ -214,6 +207,26 @@ def validate_threejs_motion_json(
     return bone_names, ref_frame_count
 
 
+def validate_allowed_animation_bones(
+    bone_names: List[str], json_path: Optional[str] = None
+) -> List[str]:
+    """Return the allowed output bones after confirming they all exist."""
+    available_bones = set(bone_names)
+    missing_bones = [
+        bone_name
+        for bone_name in ALLOWED_ANIMATION_BONES
+        if bone_name not in available_bones
+    ]
+
+    if missing_bones:
+        raise ValueError(
+            f"Missing allowed animation bones in {json_path}: "
+            f"{', '.join(missing_bones)}"
+        )
+
+    return list(ALLOWED_ANIMATION_BONES)
+
+
 def append_threejs_clip_to_output(
     output_json: Dict[str, Any], 
     motion_json: Dict[str, Any], 
@@ -223,8 +236,8 @@ def append_threejs_clip_to_output(
     """
     Append all frames from one vocab motion into the final output json.
 
-    Each frame is copied for every bone and assigned a new sequential frame
-    number. The hips rotation is replaced with the fixed output rotation.
+    Each frame is copied for every allowed bone and assigned a new sequential
+    frame number.
 
     output_json    (Dict[str, Any])  :  output motion data keyed by bone name
     motion_json    (Dict[str, Any])  :  source motion data to be appended from
@@ -241,12 +254,11 @@ def append_threejs_clip_to_output(
     for local_frame_idx in range(num_frames):
         for bone_name in bone_names:
             source_rotation = motion_json["bones"][bone_name][local_frame_idx]["rot"]
-            rotation = get_output_rotation(bone_name, source_rotation)
 
             output_json["bones"][bone_name].append(
                 {
                     "f": frame_counter,
-                    "rot": rotation,
+                    "rot": source_rotation,
                 }
             )
 
@@ -266,9 +278,8 @@ def append_threejs_interpolation_to_output(
     """
     Append transition frames between two neighboring motion clips.
 
-    Each transition frame interpolates between the final rotation of prev_motion 
-    and the first rotation of next_motion for every bone. 
-    The hips bone uses the fixed root rotation instead of interpolation.
+    Each transition frame interpolates between the final rotation of prev_motion
+    and the first rotation of next_motion for every allowed bone.
 
     The generated frames are appended directly to output_json.
 
@@ -294,12 +305,11 @@ def append_threejs_interpolation_to_output(
         t = interp_idx / (interpolation_frames + 1)
 
         for bone_name in bone_names:
-            if is_hip_bone(bone_name):
-                interp_rotation = list(FIXED_HIP_ROTATION)
-            else:
-                prev_rotation = prev_motion["bones"][bone_name][-1]["rot"]
-                next_rotation = next_motion["bones"][bone_name][0]["rot"]
-                interp_rotation = interpolate_rotation(prev_rotation, next_rotation, t)
+            prev_rotation = prev_motion["bones"][bone_name][-1]["rot"]
+            next_rotation = next_motion["bones"][bone_name][0]["rot"]
+            interp_rotation = interpolate_rotation(
+                prev_rotation, next_rotation, t
+            )
 
             output_json["bones"][bone_name].append(
                 {
@@ -365,9 +375,13 @@ def build_concatenated_threejs_motion_json(
 
     # retrieve the first vocab motion
     first_motion = get_motion(json_paths[0])
-    bone_names, _ = validate_threejs_motion_json(first_motion, json_paths[0])
-    # used to build keys for the output json by bone names in the first
-    # vocab motion
+    source_bone_names, _ = validate_threejs_motion_json(
+        first_motion, json_paths[0]
+    )
+    bone_names = validate_allowed_animation_bones(
+        source_bone_names, json_paths[0]
+    )
+    # Build output keys only for bones used by frontend animation playback.
     output_json = {
         "name": animation_name,
         "fps": first_motion.get("fps", 30),
@@ -389,12 +403,7 @@ def build_concatenated_threejs_motion_json(
             current_motion, json_path
         )
 
-        # bones should be identical across all motion files
-        if set(current_bone_names) != set(bone_names):
-            raise ValueError(
-                f"Bone mismatch in {json_path}. "
-                f"Expected same bones as first motion."
-            )
+        validate_allowed_animation_bones(current_bone_names, json_path)
 
         # motion from the first vocab (first in the json path list)
         # will be added to the final motion directly

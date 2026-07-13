@@ -234,6 +234,14 @@ class FrontendHandler(http.server.SimpleHTTPRequestHandler):
         # prefix server request logs so HTTP traffic is easy to identify
         print("[HTTP]", format % args)
 
+    def end_headers(self) -> None:
+        """Prevent browsers from retaining replaceable avatar model files."""
+        if urlparse(self.path).path.startswith("/models/"):
+            self.send_header("Cache-Control", "no-store, no-cache, must-revalidate")
+            self.send_header("Pragma", "no-cache")
+            self.send_header("Expires", "0")
+        super().end_headers()
+
     def _send_json(self, payload: Dict[str, Any], status: int = 200) -> None:
         """
         Send one dictionary to the frontend as an HTTP JSON response.

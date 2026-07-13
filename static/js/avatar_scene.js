@@ -17,9 +17,11 @@ const stageEl = document.getElementById("avatar-stage");
 export function applyFixedAvatarCamera() {
   if (!camera) return;
 
-  const target = new THREE.Vector3(0, 13.1, 0);
+  // Frame the signing area while cropping unnecessary lower-body space.
+  const target = new THREE.Vector3(0, 14.1, 0);
   const distance = 16.2;
-  camera.position.set(target.x, target.y, target.z + distance);
+  const cameraHeight = target.y - 0.6;
+  camera.position.set(target.x, cameraHeight, target.z + distance);
   camera.lookAt(target);
 }
 

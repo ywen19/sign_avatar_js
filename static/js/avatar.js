@@ -1,7 +1,7 @@
 /**
  * Orchestrates avatar model loading and the public frontend avatar API.
  *
- * This module owns GLB caching, material preparation, skeleton discovery,
+ * This module owns GLB loading, material preparation, skeleton discovery,
  * avatar switching, manifest startup, and coordination with the scene and
  * animation modules. Other frontend scripts call the stable window APIs
  * registered near the end of this file.
@@ -25,7 +25,7 @@ import {
   getAvatarScene,
   initAvatarScene,
   renderAvatarScene,
-} from "./avatar_scene.js";
+} from "./avatar_scene.js?v=camera-angle-20260713";
 
 console.log("AVATAR JS LOADED");
 
@@ -43,12 +43,16 @@ const DEMO_MATERIAL_FIX_MODEL_URLS = new Set([
   "/models/man.glb",
   "/models/woman.glb",
 ]);
-const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model";
+const AVATAR_MODEL_STORAGE_KEY = "sign-demo-avatar-model-v4";
+const DEFAULT_AVATAR_SCENE_SCALE = 10;
+const STANDARD_HIPS_WORLD_Y = 10.089534521102905;
 
-// Cache completed and in-flight loads to avoid duplicate GLB requests.
-const modelAssetCache = new Map();
+// Deduplicate only simultaneous requests. Completed GLBs are deliberately not
+// retained so a replaced model file is fetched again on the next switch.
 const modelAssetPromises = new Map();
+const modelDisplayScaleMultipliers = new Map();
 let avatarManifestPromise = null;
+let modelRequestSequence = 0;
 
 const clock = new THREE.Clock();
 
@@ -217,7 +221,7 @@ function applyAvatarMaterialProfile(material, modelUrl) {
 // Model preparation and loading -------------------------------------------
 
 /**
- * Scale, center, prepare materials, and discover the skeleton of a loaded GLB.
+ * Scale, vertically align, prepare materials, and discover a loaded GLB rig.
  *
  * @param {object} gltf - Parsed GLTFLoader result.
  * @param {string} modelUrl - Normalized source model URL.
@@ -227,8 +231,12 @@ function applyAvatarMaterialProfile(material, modelUrl) {
 function prepareLoadedAvatar(gltf, modelUrl) {
   const nextAvatar = gltf.scene;
   let nextSkeleton = null;
+  const displayScaleMultiplier =
+    modelDisplayScaleMultipliers.get(modelUrl) || 1;
+  const sceneScale =
+    DEFAULT_AVATAR_SCENE_SCALE * displayScaleMultiplier;
 
-  nextAvatar.scale.set(10, 10, 10);
+  nextAvatar.scale.set(sceneScale, sceneScale, sceneScale);
 
   const bbox = new THREE.Box3().setFromObject(nextAvatar);
   const size = new THREE.Vector3();
@@ -236,10 +244,15 @@ function prepareLoadedAvatar(gltf, modelUrl) {
   bbox.getSize(size);
   bbox.getCenter(center);
 
-  log("Model bbox size:", size);
-  log("Model bbox center:", center);
+  log("Model bbox size:", size.toArray());
+  log("Model bbox center:", center.toArray());
+  log("Model display scale:", sceneScale);
 
-  nextAvatar.position.sub(center);
+  // These rigs are authored against the shared scene origin. Box3 in this
+  // Three.js version measures bind-space vertices for SkinnedMesh objects, so
+  // using its center would move models with different bind transforms by
+  // different depths even when their rendered meshes are aligned.
+  nextAvatar.position.set(0, 0, 0);
 
   nextAvatar.traverse((obj) => {
     if (obj.isMesh || obj.isSkinnedMesh) {
@@ -257,6 +270,25 @@ function prepareLoadedAvatar(gltf, modelUrl) {
       nextSkeleton = obj.skeleton;
     }
   });
+
+  if (nextSkeleton) {
+    const hips = nextSkeleton.bones.find(
+      (bone) => normalizeBoneName(bone.name) === "Hips"
+    );
+
+    if (hips) {
+      nextAvatar.updateMatrixWorld(true);
+      const hipsWorldPosition = new THREE.Vector3();
+      hips.getWorldPosition(hipsWorldPosition);
+      const verticalOffset = STANDARD_HIPS_WORLD_Y - hipsWorldPosition.y;
+      nextAvatar.position.y += verticalOffset;
+      nextAvatar.updateMatrixWorld(true);
+      log("Hips source Y and vertical offset:", [
+        hipsWorldPosition.y,
+        verticalOffset,
+      ]);
+    }
+  }
 
   return { nextAvatar, nextSkeleton };
 }
@@ -304,18 +336,13 @@ function installLoadedAvatar(nextAvatar, nextSkeleton) {
 }
 
 /**
- * Return a cached avatar asset or load and prepare it once with GLTFLoader.
+ * Fetch and prepare a fresh avatar asset with GLTFLoader.
  *
  * @param {string} url - Model path to load.
  * @returns {Promise<object>} Prepared avatar and skeleton asset.
  */
 function loadAvatarAsset(url) {
   const modelUrl = normalizeModelUrl(url);
-
-  if (modelAssetCache.has(modelUrl)) {
-    // Completed model loads can be reused immediately during avatar switching.
-    return Promise.resolve(modelAssetCache.get(modelUrl));
-  }
 
   if (modelAssetPromises.has(modelUrl)) {
     // Share an in-flight load instead of requesting the same GLB again.
@@ -325,14 +352,15 @@ function loadAvatarAsset(url) {
   log("Loading avatar asset:", modelUrl);
 
   const loader = new THREE.GLTFLoader();
+  const separator = modelUrl.includes("?") ? "&" : "?";
+  const requestUrl = `${modelUrl}${separator}reload=${Date.now()}-${++modelRequestSequence}`;
   const promise = new Promise((resolve, reject) => {
     loader.load(
-      modelUrl,
+      requestUrl,
       function (gltf) {
         const asset = prepareLoadedAvatar(gltf, modelUrl);
-        modelAssetCache.set(modelUrl, asset);
         modelAssetPromises.delete(modelUrl);
-        log("Avatar asset cached:", modelUrl);
+        log("Fresh avatar asset loaded:", modelUrl);
         resolve(asset);
       },
       undefined,
@@ -390,10 +418,10 @@ async function loadModel(url = DEFAULT_MODEL_URL, options = {}) {
   }
 }
 
-// Avatar manifest and preload ---------------------------------------------
+// Avatar manifest ---------------------------------------------------------
 
 /**
- * Fetch and cache the avatar manifest promise for startup and preloading.
+ * Fetch the avatar manifest for startup and avatar selection.
  *
  * @returns {Promise<object>} Avatar manifest entries keyed by avatar ID.
  */
@@ -405,6 +433,20 @@ async function loadAvatarManifest() {
           throw new Error(`avatars.json HTTP ${response.status}`);
         }
         return response.json();
+      })
+      .then((avatars) => {
+        modelDisplayScaleMultipliers.clear();
+
+        Object.values(avatars).forEach((avatarData) => {
+          const modelUrl = normalizeModelUrl(avatarData.model);
+          const multiplier = Number(avatarData.displayScale);
+
+          if (Number.isFinite(multiplier) && multiplier > 0) {
+            modelDisplayScaleMultipliers.set(modelUrl, multiplier);
+          }
+        });
+
+        return avatars;
       });
   }
 
@@ -437,38 +479,8 @@ async function getManifestDefaultAvatarModelUrl() {
  * @returns {Promise<string>} Initial model URL for application startup.
  */
 async function getInitialAvatarModelUrl() {
-  return (
-    getStoredAvatarModelUrl() ||
-    (await getManifestDefaultAvatarModelUrl())
-  );
-}
-
-/**
- * Warm the asset cache with every manifest model except the installed model.
- *
- * @returns {Promise<void>}
- */
-async function preloadAvatarModelsFromManifest() {
-  try {
-    const avatars = await loadAvatarManifest();
-    const modelUrls = Object.values(avatars)
-      .map((item) => normalizeModelUrl(item.model))
-      .filter((url, index, all) => url && all.indexOf(url) === index);
-
-    modelUrls.forEach((modelUrl) => {
-      if (modelUrl === currentModelUrl) return;
-
-      loadAvatarAsset(modelUrl)
-        .then(() => {
-          log("Avatar preloaded:", modelUrl);
-        })
-        .catch((err) => {
-          console.warn("Avatar preload failed:", modelUrl, err);
-        });
-    });
-  } catch (err) {
-    console.warn("Avatar manifest preload failed:", err);
-  }
+  const defaultModelUrl = await getManifestDefaultAvatarModelUrl();
+  return getStoredAvatarModelUrl() || defaultModelUrl;
 }
 
 // Backend animation requests ----------------------------------------------
@@ -587,14 +599,12 @@ async function startAvatarApp() {
 
   try {
     await loadModel(initialModelUrl, { fetchDefaultAnimation: true });
-    preloadAvatarModelsFromManifest();
   } catch (err) {
     console.error("Initial avatar load failed:", err);
 
     if (initialModelUrl !== DEFAULT_MODEL_URL) {
       try {
         await loadModel(DEFAULT_MODEL_URL, { fetchDefaultAnimation: true });
-        preloadAvatarModelsFromManifest();
       } catch (fallbackErr) {
         console.error("Fallback avatar load failed:", fallbackErr);
       }
